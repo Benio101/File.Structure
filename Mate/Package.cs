@@ -27,8 +27,8 @@ namespace Mate
 	:
 		AsyncPackage
 	{
-		private static EnvDTE.Events       Events;
-		private static EnvDTE.WindowEvents WindowEvents;
+		private static EnvDTE.Events         Events;
+		private static EnvDTE.DocumentEvents DocumentEvents;
 
 		protected override async System.Threading.Tasks.Task InitializeAsync
 		(
@@ -45,14 +45,14 @@ namespace Mate
 			var DTE = Utils.GetDTE();
 			Events = DTE.Events;
 
-			WindowEvents = Events.WindowEvents;
-			WindowEvents.WindowClosing += Window =>
+			DocumentEvents = Events.DocumentEvents;
+			DocumentEvents.DocumentClosing += Document =>
 			{
 				ThreadHelper.ThrowIfNotOnUIThread();
-				if (Window.Document.Language != "C/C++") return;
+				if (Document.Language != "C/C++") return;
 
 				// Clear `File structure` window when closing window with `C/C++` source code.
-				Mate.Window.RemoveAllEntries();
+				Window.RemoveAllEntries();
 			};
 		}
 	}
