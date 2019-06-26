@@ -41,11 +41,17 @@ namespace Mate
 		/// Font size.
 		private const int Size = 13;
 
-		/// Entry height.
-		private const int EntryHeight = Size + 8;
-
 		/// Margin size of `File structure` window.
-		private const int MarginSize = 10;
+		private const int MarginSize = 2;
+
+		/// Width of @LineNumberBlock (coefficient of !Size).
+		private const int LineNumberWidth = 3;
+
+		/// Width of @NameBlock (coefficient of !Size).
+		private const int NameWidth = 15;
+
+		/// Entry height.
+		private const int EntryHeight = Size + MarginSize * 4;
 
 		/// Number of entries to display over focused entry when focusing it upon mouse click on active document.
 		private const int EntriesOverFocus = 15;
@@ -57,7 +63,7 @@ namespace Mate
 			Stack.Orientation                    = Orientation.Vertical;
 			Stack.CanHorizontallyScroll          = true;
 			Stack.CanVerticallyScroll            = true;
-			Stack.Margin                         = new Thickness(MarginSize);
+			Stack.Margin                         = new Thickness(0);
 
 			Scroll.Content                       = Stack;
 			Scroll.HorizontalScrollBarVisibility = ScrollBarVisibility.Auto;
@@ -94,7 +100,7 @@ namespace Mate
 		/// \param  Region       Region type of entry to add.
 		/// \param  LineNumber   Line number of beginning of entry (first line is 1).
 		/// \param  Value        Text Value to show in `File structure` window's entry (`""` for some types of regions).
-		/// \param  IndentLevel  Level of indentation (0 to 3) of entry (0 means no indentation, 3 means indent 3×).
+		/// \param  IndentLevel  Level of indentation (0 to 4) of entry (0 means no indentation, 4 means indent 4×).
 
 		internal static void AddEntry
 		(
@@ -104,9 +110,9 @@ namespace Mate
 			int              IndentLevel = 0
 		)
 		{
-			// Clamp $IndentLevel between 0 and 3.
+			// Clamp $IndentLevel between 0 and 4.
 			if (IndentLevel < 0) IndentLevel = 0;
-			if (IndentLevel > 3) IndentLevel = 3;
+			if (IndentLevel > 4) IndentLevel = 4;
 
 			if (Entries.ContainsKey(LineNumber))
 				RemoveEntry(LineNumber);
@@ -116,7 +122,7 @@ namespace Mate
 			{
 				CanHorizontallyScroll = false,
 				CanVerticallyScroll   = false,
-				Margin                = new Thickness(2),
+				Margin                = new Thickness(0),
 				Orientation           = Orientation.Horizontal,
 			};
 
@@ -525,11 +531,12 @@ namespace Mate
 					Focusable     = false,
 					FontSize      = Size,
 					FontWeight    = FontWeights.Normal,
-					Foreground    = new SolidColorBrush(Color.FromRgb(128, 128, 128)),
+					Foreground    = new SolidColorBrush(Color.FromRgb(96, 96, 96)),
 					Padding       = new Thickness(0, 0, Size, 0),
 					Text          = LineNumber.ToString(),
 					TextAlignment = TextAlignment.Right,
-					Width         = Size * 3 + Size,
+					Width         = Size * LineNumberWidth + Size,
+					Margin        = new Thickness(0, MarginSize, 0, MarginSize),
 				};
 
 				Stack.Children.Add(LineNumberBlock);
@@ -539,25 +546,25 @@ namespace Mate
 
 				var IndentBlock0 = new Image
 				{
-					Margin = new Thickness(0, 0, Size, 0),
+					Margin = new Thickness(0, MarginSize, Size, MarginSize),
 					Source = Utils.GetIconFromMoniker(KnownMonikers.Blank, Size),
 				};
 
 				var IndentBlock1 = new Image
 				{
-					Margin = new Thickness(0, 0, Size, 0),
+					Margin = new Thickness(0, MarginSize, Size, MarginSize),
 					Source = Utils.GetIconFromMoniker(KnownMonikers.Blank, Size),
 				};
 
 				var IndentBlock2 = new Image
 				{
-					Margin = new Thickness(0, 0, Size, 0),
+					Margin = new Thickness(0, MarginSize, Size, MarginSize),
 					Source = Utils.GetIconFromMoniker(KnownMonikers.Blank, Size),
 				};
 
 				var IndentBlock3 = new Image
 				{
-					Margin = new Thickness(0, 0, Size, 0),
+					Margin = new Thickness(0, MarginSize, Size, MarginSize),
 					Source = Utils.GetIconFromMoniker(KnownMonikers.Blank, Size),
 				};
 
@@ -583,7 +590,7 @@ namespace Mate
 
 				var IconBlock = new Image
 				{
-					Margin = new Thickness(0, 0, Size, 0),
+					Margin = new Thickness(0, MarginSize, Size, MarginSize),
 					Source = Icon,
 				};
 
@@ -599,10 +606,10 @@ namespace Mate
 					FontSize = Size,
 					FontWeight = FontWeights.Normal,
 					Foreground = new SolidColorBrush(NameColor),
-					Padding = new Thickness(0, 0, 0, 0),
+					Padding = new Thickness(0, MarginSize, 0, MarginSize),
 					Text = Name,
 					TextAlignment = TextAlignment.Left,
-					Width = Size * 15,
+					Width = Size * NameWidth,
 				};
 
 				Stack.Children.Add(NameBlock);
@@ -634,6 +641,7 @@ namespace Mate
 		public static void RemoveAllEntries()
 		{
 			Entries.Clear();
+			Stack.Children.Clear();
 		}
 
 		/// - Scroll `File structure` window to $LineNumber (or the nearest entry with line number smaller than $LineNumber).
@@ -658,7 +666,7 @@ namespace Mate
 				var TargetEntryID = EntryID - EntriesOverFocus;
 				if (TargetEntryID < 0) TargetEntryID = 0;
 
-				Scroll.ScrollToVerticalOffset(TargetEntryID * EntryHeight + MarginSize);
+				Scroll.ScrollToVerticalOffset(TargetEntryID * EntryHeight);
 
 			#endregion
 			#region Focus
