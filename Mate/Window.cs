@@ -47,6 +47,9 @@ namespace Mate
 		/// Margin size of `File structure` window.
 		private const int MarginSize = 10;
 
+		/// Number of entries to display over focused entry when focusing it upon mouse click on active document.
+		private const int EntriesOverFocus = 15;
+
 		public Window()
 		:
 			base(null)
@@ -76,11 +79,13 @@ namespace Mate
 				if (EntryLineNumber == LineNumber)
 				{
 					LineNumberBlock.Foreground = new SolidColorBrush(Color.FromRgb(224, 224, 224));
+					Entry.Background = new SolidColorBrush(Color.FromRgb(24, 24, 24));
 				}
 
 				else
 				{
 					LineNumberBlock.Foreground = new SolidColorBrush(Color.FromRgb(128, 128, 128));
+					Entry.Background = null;
 				}
 			}
 		}
@@ -650,7 +655,10 @@ namespace Mate
 					++EntryID;
 				}	--EntryID; end:;
 
-				Scroll.ScrollToVerticalOffset(EntryID * EntryHeight + MarginSize);
+				var TargetEntryID = EntryID - EntriesOverFocus;
+				if (TargetEntryID < 0) TargetEntryID = 0;
+
+				Scroll.ScrollToVerticalOffset(TargetEntryID * EntryHeight + MarginSize);
 
 			#endregion
 			#region Focus
@@ -664,11 +672,13 @@ namespace Mate
 					if (CurrentEntryID == EntryID)
 					{
 						LineBlock.Foreground = new SolidColorBrush(Color.FromRgb(224, 224, 224));
+						Entry.Background = new SolidColorBrush(Color.FromRgb(24, 24, 24));
 					}
 
 					else
 					{
 						LineBlock.Foreground = new SolidColorBrush(Color.FromRgb(128, 128, 128));
+						Entry.Background = null;
 					}
 
 					++CurrentEntryID;
