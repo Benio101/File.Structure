@@ -5,31 +5,10 @@ using Microsoft.VisualStudio.Shell;
 
 using EnvDTE;
 
-// \todo Review.
-
 namespace Mate
 {
 	internal static class Meta
 	{
-		internal enum AccessLevel
-		{
-			None = 0,
-
-			Public,
-			Protected,
-			Private,
-		}
-
-		internal enum IndentType
-		{
-			Global = 0,
-
-			Object,
-			Region,
-			Access,
-			Item,
-		}
-
 		internal enum Region
 		{
 			None = 0,
@@ -85,6 +64,7 @@ namespace Mate
 			Function,
 		}
 
+		/// Remove trailing whitespaces from active document.
 		internal static void RemoveTrailingWhitespaces()
 		{
 			ThreadHelper.ThrowIfNotOnUIThread();
@@ -99,6 +79,7 @@ namespace Mate
 			);
 		}
 
+		/// Replace heading spaces with tabs (each pack of heading 4 spaces are replaced to a single tab character).
 		internal static void FixHeadingSpaces()
 		{
 			ThreadHelper.ThrowIfNotOnUIThread();
@@ -113,17 +94,8 @@ namespace Mate
 			));
 		}
 
-		internal static string AccessLevelToString(AccessLevel Level)
-		{
-			switch (Level)
-			{
-				case AccessLevel.Public:    return "Public";
-				case AccessLevel.Protected: return "Protected";
-				case AccessLevel.Private:   return "Private";
-			}
-
-			return "";
-		}
+		/// \short    Update content of `File structure` window.
+		/// \details  Read active document, regenerate entries and replace them with current ones.
 
 		internal static void UpdateWindow()
 		{
@@ -133,12 +105,9 @@ namespace Mate
 			if (Text == null) return;
 
 			var Reader = new StringReader(Text);
-			var CurrentAccessLevel = AccessLevel.None;
-			var CurrentRegion = Region.None;
-			var LastRegion = Region.None;
 			var LineNumber = 0;
 			string Line;
-			int IndentLevel = 0;
+			var IndentLevel = 0;
 			var bAccessLevelIndent = -1;
 
 			Window.RemoveAllEntries();
@@ -157,6 +126,7 @@ namespace Mate
 						var Desc = Match.Groups["Desc"].Value;
 						var Value = "";
 
+						// ReSharper disable once ConvertIfStatementToSwitchStatement
 						if (Region == "enum" && Desc.StartsWith("class "))
 						{
 							Desc = Desc.Substring("class ".Length);
@@ -168,7 +138,7 @@ namespace Mate
 							Desc = "";
 						}
 
-						CurrentRegion = Meta.Region.None;
+						var CurrentRegion = Meta.Region.None;
 
 						switch (Region)
 						{
@@ -233,8 +203,7 @@ namespace Mate
 						AddEntry:
 						Return:
 
-							Window.AddEntry(CurrentRegion, LineNumber, Value, AccessLevel.None, IndentLevel);
-							LastRegion = CurrentRegion;
+							Window.AddEntry(CurrentRegion, LineNumber, Value, IndentLevel);
 							++IndentLevel;
 					}
 				}
@@ -265,22 +234,17 @@ namespace Mate
 						{
 							case "public":
 
-								CurrentAccessLevel = AccessLevel.Public;
-								Window.AddEntry(Region.Public, LineNumber, "", AccessLevel.None, AIndentLevel);
-
+								Window.AddEntry(Region.Public, LineNumber, "", AIndentLevel);
 								goto Match;
 
 							case "protected":
 
-								CurrentAccessLevel = AccessLevel.Protected;
-								Window.AddEntry(Region.Protected, LineNumber, "", AccessLevel.None, AIndentLevel);
-
+								Window.AddEntry(Region.Protected, LineNumber, "", AIndentLevel);
 								goto Match;
 
 							case "private":
 
-								CurrentAccessLevel = AccessLevel.Private;
-								Window.AddEntry(Region.Private, LineNumber, "", AccessLevel.None, AIndentLevel);
+								Window.AddEntry(Region.Private, LineNumber, "", AIndentLevel);
 
 								goto Match;
 
@@ -289,8 +253,6 @@ namespace Mate
 								break;
 
 							Match:
-
-								//Window.AddEntry(LastRegion, LineNumber, "");
 
 								if (bAccessLevelIndent == -1)
 								{
@@ -306,6 +268,7 @@ namespace Mate
 		}
 	}
 
+	/// Icons used by extension, as strings encoded in Base64.
 	internal static class Icons
 	{
 		// ReSharper disable UnusedMember.Global

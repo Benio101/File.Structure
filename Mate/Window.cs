@@ -17,22 +17,35 @@ namespace Mate
 	/// \details
 	/// `File structure` window's content is !Scroll containing a vertical !Stack.
 	/// !Stack contains !Entries for each of regions. !Entries are horizontal stacks, rows of `File structure` window wrapped in a !Scroll.
-	/// !Entries consists of the following column: @LineNumberBlock,  optional indent blocks, @ImageBlock and @NameBlock.
+	/// !Entries consists of the following column: @LineNumberBlock,  optional indent blocks, @IconBlock and @NameBlock.
 
 	[Guid("5f404ad9-a445-44ca-bae7-61fdadb5cb06")]
 	internal sealed class Window
 	:
 		ToolWindowPane
 	{
-		private static readonly ScrollViewer                      Scroll      = new ScrollViewer();
-		private static readonly StackPanel                        Stack       = new StackPanel();
-		private static readonly SortedDictionary<int, StackPanel> Entries     = new SortedDictionary<int, StackPanel>();
+		/// `File structure` window's content. Contains !Stack with !Entries.
+		private static readonly ScrollViewer Scroll = new ScrollViewer();
+
+		/// Content of !Scroll of `File structure` window. Contains !Entries.
+		private static readonly StackPanel Stack = new StackPanel();
+
+		/// \short
+		/// List of entries from `File structure` window.
+		///
+		/// \details
+		/// - Key is a line number of entry.
+		/// - Value is entry row of !Stack, which is content of !Scroll, which is content of `File structure` window.
+		private static readonly SortedDictionary<int, StackPanel> Entries = new SortedDictionary<int, StackPanel>();
 
 		/// Font size.
 		private const int Size = 13;
 
 		/// Entry height.
 		private const int EntryHeight = Size + 8;
+
+		/// Margin size of `File structure` window.
+		private const int MarginSize = 10;
 
 		public Window()
 		:
@@ -41,7 +54,7 @@ namespace Mate
 			Stack.Orientation                    = Orientation.Vertical;
 			Stack.CanHorizontallyScroll          = true;
 			Stack.CanVerticallyScroll            = true;
-			Stack.Margin                         = new Thickness(10);
+			Stack.Margin                         = new Thickness(MarginSize);
 
 			Scroll.Content                       = Stack;
 			Scroll.HorizontalScrollBarVisibility = ScrollBarVisibility.Auto;
@@ -76,19 +89,20 @@ namespace Mate
 		/// \param  Region       Region type of entry to add.
 		/// \param  LineNumber   Line number of beginning of entry (first line is 1).
 		/// \param  Value        Text Value to show in `File structure` window's entry (`""` for some types of regions).
-		/// \param  AccessLevel  Unused. Pass `Meta.AccessLevel.None`.
 		/// \param  IndentLevel  Level of indentation (0 to 3) of entry (0 means no indentation, 3 means indent 3×).
-		/// \todo                Remove $AccessLevel.
 
 		internal static void AddEntry
 		(
 			Meta.Region      Region,
 			int              LineNumber,
 			string           Value,
-			Meta.AccessLevel AccessLevel = Meta.AccessLevel.None,
 			int              IndentLevel = 0
 		)
 		{
+			// Clamp $IndentLevel between 0 and 3.
+			if (IndentLevel < 0) IndentLevel = 0;
+			if (IndentLevel > 3) IndentLevel = 3;
+
 			if (Entries.ContainsKey(LineNumber))
 				RemoveEntry(LineNumber);
 
@@ -131,20 +145,8 @@ namespace Mate
 			// Color of @Name.
 			var NameColor = Color.FromRgb(224, 224, 224);
 
-			// @Icon to show in @ImageBlock.
+			// @Icon to show in @IconBlock.
 			ImageSource Icon = Utils.GetIconFromMoniker(KnownMonikers.Blank, Size);
-
-			// Unused.
-			// \todo Remove.
-			ImageSource AccessLevelIcon = Utils.GetIconFromMoniker(KnownMonikers.Blank, Size);
-
-			// Unused.
-			// \todo Remove.
-			var Indent = Meta.IndentType.Global;
-
-			// If @Icon should be shown.
-			// \todo Remove? Can icon ever not be shown?
-			var ShowIcon = true;
 
 			// Set @Name, @NameColor, and @Icon, depending on $Region.
 			switch (Region)
@@ -153,9 +155,7 @@ namespace Mate
 
 					Name = "Headers";
 					NameColor = Color.FromRgb(224, 224, 224);
-					ShowIcon = true;
 					Icon = Utils.GetIconFromBase64(Icons.SquareDottedWhite, Size);
-					Indent = Meta.IndentType.Global;
 
 					break;
 
@@ -163,9 +163,7 @@ namespace Mate
 
 					Name = "Meta";
 					NameColor = Color.FromRgb(224, 224, 224);
-					ShowIcon = true;
 					Icon = Utils.GetIconFromBase64(Icons.SquareFullWhite, Size);
-					Indent = Meta.IndentType.Global;
 
 					break;
 
@@ -173,9 +171,7 @@ namespace Mate
 
 					Name = Value;
 					NameColor = Color.FromRgb(128, 128, 128);
-					ShowIcon = true;
 					Icon = Utils.GetIconFromBase64(Icons.SquareDottedGray, Size);
-					Indent = Meta.IndentType.Global;
 
 					break;
 
@@ -183,9 +179,7 @@ namespace Mate
 
 					Name = Value;
 					NameColor = Color.FromRgb(176, 224, 128);
-					ShowIcon = true;
 					Icon = Utils.GetIconFromBase64(Icons.SquareDottedGreen, Size);
-					Indent = Meta.IndentType.Object;
 
 					break;
 
@@ -193,9 +187,7 @@ namespace Mate
 
 					Name = Value;
 					NameColor = Color.FromRgb(176, 224, 128);
-					ShowIcon = true;
 					Icon = Utils.GetIconFromBase64(Icons.SquareDottedGreen, Size);
-					Indent = Meta.IndentType.Object;
 
 					break;
 
@@ -203,9 +195,7 @@ namespace Mate
 
 					Name = Value;
 					NameColor = Color.FromRgb(176, 224, 128);
-					ShowIcon = true;
 					Icon = Utils.GetIconFromBase64(Icons.SquareDottedGreen, Size);
-					Indent = Meta.IndentType.Object;
 
 					break;
 
@@ -213,9 +203,7 @@ namespace Mate
 
 					Name = Value;
 					NameColor = Color.FromRgb(128, 176, 224);
-					ShowIcon = true;
 					Icon = Utils.GetIconFromBase64(Icons.SquareDottedBlue, Size);
-					Indent = Meta.IndentType.Object;
 
 					break;
 
@@ -223,9 +211,7 @@ namespace Mate
 
 					Name = Value;
 					NameColor = Color.FromRgb(176, 128, 224);
-					ShowIcon = true;
 					Icon = Utils.GetIconFromBase64(Icons.SquareFullPurple, Size);
-					Indent = Meta.IndentType.Object;
 
 					break;
 
@@ -233,9 +219,7 @@ namespace Mate
 
 					Name = "Public";
 					NameColor = Color.FromRgb(128, 176, 96);
-					ShowIcon = true;
 					Icon = Utils.GetIconFromBase64(Icons.CircleSmallGreen, Size);
-					Indent = Meta.IndentType.Access;
 
 					break;
 
@@ -243,9 +227,7 @@ namespace Mate
 
 					Name = "Protected";
 					NameColor = Color.FromRgb(128, 176, 96);
-					ShowIcon = true;
 					Icon = Utils.GetIconFromBase64(Icons.CircleSmallGreen, Size);
-					Indent = Meta.IndentType.Access;
 
 					break;
 
@@ -253,9 +235,7 @@ namespace Mate
 
 					Name = "Private";
 					NameColor = Color.FromRgb(128, 176, 96);
-					ShowIcon = true;
 					Icon = Utils.GetIconFromBase64(Icons.CircleSmallGreen, Size);
-					Indent = Meta.IndentType.Access;
 
 					break;
 
@@ -263,9 +243,7 @@ namespace Mate
 
 					Name = "Usings";
 					NameColor = Color.FromRgb(128, 128, 128);
-					ShowIcon = true;
 					Icon = Utils.GetIconFromBase64(Icons.SquareFullGray, Size);
-					Indent = Meta.IndentType.Region;
 
 					break;
 
@@ -273,9 +251,7 @@ namespace Mate
 
 					Name = "Friends";
 					NameColor = Color.FromRgb(128, 176, 224);
-					ShowIcon = true;
 					Icon = Utils.GetIconFromBase64(Icons.SquareFullBlue, Size);
-					Indent = Meta.IndentType.Region;
 
 					break;
 
@@ -283,9 +259,7 @@ namespace Mate
 
 					Name = "Enums";
 					NameColor = Color.FromRgb(224, 128, 128);
-					ShowIcon = true;
 					Icon = Utils.GetIconFromBase64(Icons.SquareDottedRed, Size);
-					Indent = Meta.IndentType.Region;
 
 					break;
 
@@ -293,9 +267,7 @@ namespace Mate
 
 					Name = "Components";
 					NameColor = Color.FromRgb(128, 224, 176);
-					ShowIcon = true;
 					Icon = Utils.GetIconFromBase64(Icons.SquareFullTurquoise, Size);
-					Indent = Meta.IndentType.Region;
 
 					break;
 
@@ -303,9 +275,7 @@ namespace Mate
 
 					Name = "Members";
 					NameColor = Color.FromRgb(224, 224, 128);
-					ShowIcon = true;
 					Icon = Utils.GetIconFromBase64(Icons.SquareFullYellow, Size);
-					Indent = Meta.IndentType.Region;
 
 					break;
 
@@ -313,9 +283,7 @@ namespace Mate
 
 					Name = "Delegates";
 					NameColor = Color.FromRgb(224, 128, 224);
-					ShowIcon = true;
 					Icon = Utils.GetIconFromBase64(Icons.SquareFullPink, Size);
-					Indent = Meta.IndentType.Region;
 
 					break;
 
@@ -323,9 +291,7 @@ namespace Mate
 
 					Name = "Fields";
 					NameColor = Color.FromRgb(224, 128, 128);
-					ShowIcon = true;
 					Icon = Utils.GetIconFromBase64(Icons.SquareFullRed, Size);
-					Indent = Meta.IndentType.Region;
 
 					break;
 
@@ -333,9 +299,7 @@ namespace Mate
 
 					Name = "Specials";
 					NameColor = Color.FromRgb(176, 224, 128);
-					ShowIcon = true;
 					Icon = Utils.GetIconFromBase64(Icons.CircleFullGreen, Size);
-					Indent = Meta.IndentType.Region;
 
 					break;
 
@@ -343,9 +307,7 @@ namespace Mate
 
 					Name = "Constructors";
 					NameColor = Color.FromRgb(176, 224, 128);
-					ShowIcon = true;
 					Icon = Utils.GetIconFromBase64(Icons.CircleDottedGreen, Size);
-					Indent = Meta.IndentType.Region;
 
 					break;
 
@@ -353,9 +315,7 @@ namespace Mate
 
 					Name = "Operators";
 					NameColor = Color.FromRgb(224, 176, 128);
-					ShowIcon = true;
 					Icon = Utils.GetIconFromBase64(Icons.CircleFullOrange, Size);
-					Indent = Meta.IndentType.Region;
 
 					break;
 
@@ -363,9 +323,7 @@ namespace Mate
 
 					Name = "Conversions";
 					NameColor = Color.FromRgb(224, 176, 128);
-					ShowIcon = true;
 					Icon = Utils.GetIconFromBase64(Icons.CircleDottedOrange, Size);
-					Indent = Meta.IndentType.Region;
 
 					break;
 
@@ -373,9 +331,7 @@ namespace Mate
 
 					Name = "Overrides";
 					NameColor = Color.FromRgb(128, 224, 176);
-					ShowIcon = true;
 					Icon = Utils.GetIconFromBase64(Icons.CircleFullTurquoise, Size);
-					Indent = Meta.IndentType.Region;
 
 					break;
 
@@ -383,9 +339,7 @@ namespace Mate
 
 					Name = "Methods";
 					NameColor = Color.FromRgb(224, 224, 128);
-					ShowIcon = true;
 					Icon = Utils.GetIconFromBase64(Icons.CircleFullYellow, Size);
-					Indent = Meta.IndentType.Region;
 
 					break;
 
@@ -393,9 +347,7 @@ namespace Mate
 
 					Name = "Events";
 					NameColor = Color.FromRgb(224, 128, 224);
-					ShowIcon = true;
 					Icon = Utils.GetIconFromBase64(Icons.CircleFullPink, Size);
-					Indent = Meta.IndentType.Region;
 
 					break;
 
@@ -403,9 +355,7 @@ namespace Mate
 
 					Name = "Getters";
 					NameColor = Color.FromRgb(128, 176, 224);
-					ShowIcon = true;
 					Icon = Utils.GetIconFromBase64(Icons.CircleFullBlue, Size);
-					Indent = Meta.IndentType.Region;
 
 					break;
 
@@ -413,9 +363,7 @@ namespace Mate
 
 					Name = "Setters";
 					NameColor = Color.FromRgb(176, 128, 224);
-					ShowIcon = true;
 					Icon = Utils.GetIconFromBase64(Icons.CircleFullPurple, Size);
-					Indent = Meta.IndentType.Region;
 
 					break;
 
@@ -423,9 +371,7 @@ namespace Mate
 
 					Name = "Functions";
 					NameColor = Color.FromRgb(224, 128, 128);
-					ShowIcon = true;
 					Icon = Utils.GetIconFromBase64(Icons.CircleFullRed, Size);
-					Indent = Meta.IndentType.Region;
 
 					break;
 
@@ -433,9 +379,7 @@ namespace Mate
 
 					Name = Value;
 					NameColor = Color.FromRgb(128, 128, 128);
-					ShowIcon = true;
 					Icon = Utils.GetIconFromBase64(Icons.SquareFullGray, Size);
-					Indent = Meta.IndentType.Item;
 
 					break;
 
@@ -443,9 +387,7 @@ namespace Mate
 
 					Name = Value;
 					NameColor = Color.FromRgb(128, 176, 224);
-					ShowIcon = true;
 					Icon = Utils.GetIconFromBase64(Icons.SquareFullBlue, Size);
-					Indent = Meta.IndentType.Item;
 
 					break;
 
@@ -453,9 +395,7 @@ namespace Mate
 
 					Name = Value;
 					NameColor = Color.FromRgb(224, 128, 128);
-					ShowIcon = true;
 					Icon = Utils.GetIconFromBase64(Icons.SquareDottedRed, Size);
-					Indent = Meta.IndentType.Item;
 
 					break;
 
@@ -463,9 +403,7 @@ namespace Mate
 
 					Name = Value;
 					NameColor = Color.FromRgb(128, 224, 176);
-					ShowIcon = true;
 					Icon = Utils.GetIconFromBase64(Icons.SquareFullTurquoise, Size);
-					Indent = Meta.IndentType.Item;
 
 					break;
 
@@ -473,9 +411,7 @@ namespace Mate
 
 					Name = Value;
 					NameColor = Color.FromRgb(224, 224, 128);
-					ShowIcon = true;
 					Icon = Utils.GetIconFromBase64(Icons.SquareFullYellow, Size);
-					Indent = Meta.IndentType.Item;
 
 					break;
 
@@ -483,9 +419,7 @@ namespace Mate
 
 					Name = Value;
 					NameColor = Color.FromRgb(224, 128, 224);
-					ShowIcon = true;
 					Icon = Utils.GetIconFromBase64(Icons.SquareFullPink, Size);
-					Indent = Meta.IndentType.Item;
 
 					break;
 
@@ -493,9 +427,7 @@ namespace Mate
 
 					Name = Value;
 					NameColor = Color.FromRgb(224, 128, 128);
-					ShowIcon = true;
 					Icon = Utils.GetIconFromBase64(Icons.SquareFullRed, Size);
-					Indent = Meta.IndentType.Item;
 
 					break;
 
@@ -503,9 +435,7 @@ namespace Mate
 
 					Name = Value;
 					NameColor = Color.FromRgb(176, 224, 128);
-					ShowIcon = true;
 					Icon = Utils.GetIconFromBase64(Icons.CircleFullGreen, Size);
-					Indent = Meta.IndentType.Item;
 
 					break;
 
@@ -513,9 +443,7 @@ namespace Mate
 
 					Name = Value;
 					NameColor = Color.FromRgb(176, 224, 128);
-					ShowIcon = true;
 					Icon = Utils.GetIconFromBase64(Icons.CircleDottedGreen, Size);
-					Indent = Meta.IndentType.Item;
 
 					break;
 
@@ -523,9 +451,7 @@ namespace Mate
 
 					Name = Value;
 					NameColor = Color.FromRgb(224, 176, 128);
-					ShowIcon = true;
 					Icon = Utils.GetIconFromBase64(Icons.CircleFullOrange, Size);
-					Indent = Meta.IndentType.Item;
 
 					break;
 
@@ -533,9 +459,7 @@ namespace Mate
 
 					Name = Value;
 					NameColor = Color.FromRgb(224, 176, 128);
-					ShowIcon = true;
 					Icon = Utils.GetIconFromBase64(Icons.CircleDottedOrange, Size);
-					Indent = Meta.IndentType.Item;
 
 					break;
 
@@ -543,9 +467,7 @@ namespace Mate
 
 					Name = Value;
 					NameColor = Color.FromRgb(128, 224, 176);
-					ShowIcon = true;
 					Icon = Utils.GetIconFromBase64(Icons.CircleFullTurquoise, Size);
-					Indent = Meta.IndentType.Item;
 
 					break;
 
@@ -553,9 +475,7 @@ namespace Mate
 
 					Name = Value;
 					NameColor = Color.FromRgb(224, 224, 128);
-					ShowIcon = true;
 					Icon = Utils.GetIconFromBase64(Icons.CircleFullYellow, Size);
-					Indent = Meta.IndentType.Item;
 
 					break;
 
@@ -563,9 +483,7 @@ namespace Mate
 
 					Name = Value;
 					NameColor = Color.FromRgb(224, 128, 224);
-					ShowIcon = true;
 					Icon = Utils.GetIconFromBase64(Icons.CircleFullPink, Size);
-					Indent = Meta.IndentType.Item;
 
 					break;
 
@@ -573,9 +491,7 @@ namespace Mate
 
 					Name = Value;
 					NameColor = Color.FromRgb(128, 176, 224);
-					ShowIcon = true;
 					Icon = Utils.GetIconFromBase64(Icons.CircleFullBlue, Size);
-					Indent = Meta.IndentType.Item;
 
 					break;
 
@@ -583,9 +499,7 @@ namespace Mate
 
 					Name = Value;
 					NameColor = Color.FromRgb(176, 128, 224);
-					ShowIcon = true;
 					Icon = Utils.GetIconFromBase64(Icons.CircleFullPurple, Size);
-					Indent = Meta.IndentType.Item;
 
 					break;
 
@@ -593,149 +507,102 @@ namespace Mate
 
 					Name = Value;
 					NameColor = Color.FromRgb(224, 128, 128);
-					ShowIcon = true;
 					Icon = Utils.GetIconFromBase64(Icons.CircleFullRed, Size);
-					Indent = Meta.IndentType.Item;
 
 					break;
 			}
 
-			var LineNumberBlock = new TextBlock
-			{
-				Background    = new SolidColorBrush(Colors.Transparent),
-				Focusable     = false,
-				FontSize      = Size,
-				FontWeight    = FontWeights.Normal,
-				Foreground    = new SolidColorBrush(Color.FromRgb(128, 128, 128)),
-				Padding       = new Thickness(0, 0, Size, 0),
-				Text          = LineNumber.ToString(),
-				TextAlignment = TextAlignment.Right,
-				Width         = Size * 3 + Size,
-			};
+			#region Line number
 
-			var GlobalIndentBlock = new Image
-			{
-				Margin = new Thickness(0, 0, Size, 0),
-				Source = Utils.GetIconFromMoniker(KnownMonikers.Blank, Size),
-			};
-
-			var ObjectIndentBlock = new Image
-			{
-				Margin = new Thickness(0, 0, Size, 0),
-				Source = Utils.GetIconFromMoniker(KnownMonikers.Blank, Size),
-			};
-
-			var RegionIndentBlock = new Image
-			{
-				Margin = new Thickness(0, 0, Size, 0),
-				Source = Utils.GetIconFromMoniker(KnownMonikers.Blank, Size),
-			};
-
-			var AccessIndentBlock = new Image
-			{
-				Margin = new Thickness(0, 0, Size, 0),
-				Source = Utils.GetIconFromMoniker(KnownMonikers.Blank, Size),
-			};
-
-			// \todo Remove? Is it ever used?
-			switch (AccessLevel)
-			{
-				case Meta.AccessLevel.Public:    AccessLevelIcon = Utils.GetIconFromBase64(Icons.KeyGreen,  Size); break;
-				case Meta.AccessLevel.Protected: AccessLevelIcon = Utils.GetIconFromBase64(Icons.KeyYellow, Size); break;
-				case Meta.AccessLevel.Private:   AccessLevelIcon = Utils.GetIconFromBase64(Icons.KeyRed,    Size); break;
-			}
-
-			// Unused.
-			// \todo Remove.
-			var AccessLevelBlock = new TextBlock
-			{
-				Background = new SolidColorBrush(Colors.Transparent),
-				Focusable = false,
-				FontSize = Size,
-				FontWeight = FontWeights.Normal,
-				Foreground = new SolidColorBrush(Color.FromRgb(128, 176, 96)),
-				Padding = new Thickness(0, 0, Size, 0),
-				Text = Meta.AccessLevelToString(AccessLevel),
-				TextAlignment = TextAlignment.Left,
-			};
-
-			var AccessLevelIconBlock = new Image
-			{
-				Margin = new Thickness(0, 0, Size, 0),
-				Source = AccessLevelIcon,
-			};
-
-			var ImageBlock = new Image
-			{
-				Margin = new Thickness(0, 0, Size, 0),
-				Source = Icon,
-			};
-
-			var NameBlock = new TextBlock
-			{
-				Background = new SolidColorBrush(Colors.Transparent),
-				Focusable = false,
-				FontSize = Size,
-				FontWeight = FontWeights.Normal,
-				Foreground = new SolidColorBrush(NameColor),
-				Padding = new Thickness(0, 0, 0, 0),
-				Text = Name,
-				TextAlignment = TextAlignment.Left,
-				Width = Size * 15,
-			};
-
-			Stack.Children.Add(LineNumberBlock);
-
-			//if (Indent != Meta.IndentType.Global)
-			//{
-			//	//Stack.Children.Add(GlobalIndentBlock);
-			//	if (Indent != Meta.IndentType.Object)
-			//	{
-			//		Stack.Children.Add(ObjectIndentBlock);
-			//		if (Indent != Meta.IndentType.Region && Indent != Meta.IndentType.Access)
-			//		{
-			//			Stack.Children.Add(RegionIndentBlock);
-			//			if (Indent != Meta.IndentType.Access)
-			//			{
-			//				//Stack.Children.Add(AccessIndentBlock);
-			//			}
-			//		}
-			//	}
-			//}
-
-			if (IndentLevel > 0)
-			{
-				Stack.Children.Add(GlobalIndentBlock);
-				if (IndentLevel > 1)
+				var LineNumberBlock = new TextBlock
 				{
-					Stack.Children.Add(ObjectIndentBlock);
-					if (IndentLevel > 2)
+					Background    = new SolidColorBrush(Colors.Transparent),
+					Focusable     = false,
+					FontSize      = Size,
+					FontWeight    = FontWeights.Normal,
+					Foreground    = new SolidColorBrush(Color.FromRgb(128, 128, 128)),
+					Padding       = new Thickness(0, 0, Size, 0),
+					Text          = LineNumber.ToString(),
+					TextAlignment = TextAlignment.Right,
+					Width         = Size * 3 + Size,
+				};
+
+				Stack.Children.Add(LineNumberBlock);
+
+			#endregion
+			#region Indent
+
+				var IndentBlock0 = new Image
+				{
+					Margin = new Thickness(0, 0, Size, 0),
+					Source = Utils.GetIconFromMoniker(KnownMonikers.Blank, Size),
+				};
+
+				var IndentBlock1 = new Image
+				{
+					Margin = new Thickness(0, 0, Size, 0),
+					Source = Utils.GetIconFromMoniker(KnownMonikers.Blank, Size),
+				};
+
+				var IndentBlock2 = new Image
+				{
+					Margin = new Thickness(0, 0, Size, 0),
+					Source = Utils.GetIconFromMoniker(KnownMonikers.Blank, Size),
+				};
+
+				var IndentBlock3 = new Image
+				{
+					Margin = new Thickness(0, 0, Size, 0),
+					Source = Utils.GetIconFromMoniker(KnownMonikers.Blank, Size),
+				};
+
+				if (IndentLevel > 0)
+				{
+					Stack.Children.Add(IndentBlock0);
+					if (IndentLevel > 1)
 					{
-						Stack.Children.Add(RegionIndentBlock);
-						if (IndentLevel > 3)
+						Stack.Children.Add(IndentBlock1);
+						if (IndentLevel > 2)
 						{
-							Stack.Children.Add(AccessIndentBlock);
+							Stack.Children.Add(IndentBlock2);
+							if (IndentLevel > 3)
+							{
+								Stack.Children.Add(IndentBlock3);
+							}
 						}
 					}
 				}
-			}
 
-			// Unused.
-			// \todo Remove.
-			// {
+			#endregion
+			#region Icon
 
-				if (ShowIcon)
-				Stack.Children.Add(ImageBlock);
+				var IconBlock = new Image
+				{
+					Margin = new Thickness(0, 0, Size, 0),
+					Source = Icon,
+				};
 
-				if (AccessLevel != Meta.AccessLevel.None)
-				Stack.Children.Add(AccessLevelIconBlock);
+				Stack.Children.Add(IconBlock);
 
-				//if (AccessLevel != Meta.AccessLevel.None)
-				//Stack.Children.Add(AccessLevelBlock);
+			#endregion
+			#region Name
 
-			// }
+				var NameBlock = new TextBlock
+				{
+					Background = new SolidColorBrush(Colors.Transparent),
+					Focusable = false,
+					FontSize = Size,
+					FontWeight = FontWeights.Normal,
+					Foreground = new SolidColorBrush(NameColor),
+					Padding = new Thickness(0, 0, 0, 0),
+					Text = Name,
+					TextAlignment = TextAlignment.Left,
+					Width = Size * 15,
+				};
 
-			Stack.Children.Add(NameBlock);
+				Stack.Children.Add(NameBlock);
+
+			#endregion
 
 			// \todo perf: Rewrite.
 			// Mate.Window.Stack.Children.Insert insted of .Clear and foreach .Add.
@@ -748,14 +615,14 @@ namespace Mate
 			}
 		}
 
-		/// Remove entry from `File structure` window at $Line.
-		private static void RemoveEntry(int Line)
+		/// Remove entry from `File structure` window at $LineNumber.
+		private static void RemoveEntry(int LineNumber)
 		{
-			if (!Entries.ContainsKey(Line))
+			if (!Entries.ContainsKey(LineNumber))
 				return;
 
-			Stack.Children.Remove(Entries[Line]);
-			Entries.Remove(Line);
+			Stack.Children.Remove(Entries[LineNumber]);
+			Entries.Remove(LineNumber);
 		}
 
 		/// Remove all !Entries from `File structure` window.
@@ -764,47 +631,50 @@ namespace Mate
 			Entries.Clear();
 		}
 
-		// Scroll `File structure` window to $Line (or the nearest entry with line number smaller than $Line).
-		public static void ScrollToLine(int Line)
+		/// - Scroll `File structure` window to $LineNumber (or the nearest entry with line number smaller than $LineNumber).
+		/// - Focus entry in `File structure` window by given $LineNumber.
+		public static void ScrollToLine(int LineNumber)
 		{
 			ThreadHelper.ThrowIfNotOnUIThread();
 
-			var EntryID = 0;
-			foreach (var Entry in Entries)
-			{
-				var EntryLine = Entry.Key;
+			#region Scroll
 
-				if (EntryLine == Line) goto end;
-				if (EntryLine >  Line) break;
-
-				++EntryID;
-			}	--EntryID; end:;
-
-			// `10` is Stack.Margin's Thickness.
-			// \todo Make it one variable. Is it always pixel?
-			Scroll.ScrollToVerticalOffset(EntryID * EntryHeight + 10);
-
-			// \todo Rename.
-			// \todo Add note !ScrollToLine also focuses element.
-			var EntryID2 = 0;
-			foreach (var EntryPair in Entries)
-			{
-				var LineNumber = EntryPair.Key;
-				var Entry      = EntryPair.Value;
-				var LineBlock  = (TextBlock) Entry.Children[0];
-
-				if (EntryID2 == EntryID)
+				var EntryID = 0;
+				foreach (var Entry in Entries)
 				{
-					LineBlock.Foreground = new SolidColorBrush(Color.FromRgb(224, 224, 224));
+					var EntryLineNumber = Entry.Key;
+
+					if (EntryLineNumber == LineNumber) goto end;
+					if (EntryLineNumber >  LineNumber) break;
+
+					++EntryID;
+				}	--EntryID; end:;
+
+				Scroll.ScrollToVerticalOffset(EntryID * EntryHeight + MarginSize);
+
+			#endregion
+			#region Focus
+
+				var CurrentEntryID = 0;
+				foreach (var EntryPair in Entries)
+				{
+					var Entry     = EntryPair.Value;
+					var LineBlock = (TextBlock) Entry.Children[0];
+
+					if (CurrentEntryID == EntryID)
+					{
+						LineBlock.Foreground = new SolidColorBrush(Color.FromRgb(224, 224, 224));
+					}
+
+					else
+					{
+						LineBlock.Foreground = new SolidColorBrush(Color.FromRgb(128, 128, 128));
+					}
+
+					++CurrentEntryID;
 				}
 
-				else
-				{
-					LineBlock.Foreground = new SolidColorBrush(Color.FromRgb(128, 128, 128));
-				}
-
-				++EntryID2;
-			}
+			#endregion
 		}
 	}
 }

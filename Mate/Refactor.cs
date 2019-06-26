@@ -1,21 +1,19 @@
 ﻿using System;
 using System.ComponentModel.Composition;
 
-using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.Shell;
-using Microsoft.VisualStudio.Shell.Interop;
 using Microsoft.VisualStudio.Text;
 using Microsoft.VisualStudio.Text.Classification;
 using Microsoft.VisualStudio.Text.Editor;
 using Microsoft.VisualStudio.Utilities;
 
-// \todo Review.
-
 namespace Mate
 {
-	[ContentType("C/C++")]
-	[Export(typeof(ITextViewCreationListener))]
-	[TextViewRole(PredefinedTextViewRoles.Editable)]
+	[
+		ContentType("C/C++"),
+		Export(typeof(ITextViewCreationListener)),
+		TextViewRole(PredefinedTextViewRoles.Editable)
+	]
 
 	internal class Refactor
 	:
@@ -46,7 +44,7 @@ namespace Mate
 			Meta.UpdateWindow();
 		}
 
-		private void OnCaretPositionChanged
+		private static void OnCaretPositionChanged
 		(
 			object                        Sender,
 			CaretPositionChangedEventArgs Event
@@ -55,9 +53,7 @@ namespace Mate
 			ThreadHelper.ThrowIfNotOnUIThread();
 
 			var CurrentLine = Utils.GetCurrentLine();
-			//Debug.Print("OnCaretPositionChanged: " + CurrentLine);
 			Window.ScrollToLine(CurrentLine);
-			//Window.FocusLine(CurrentLine);
 		}
 
 		private void OnTextBufferChanged
@@ -199,9 +195,6 @@ namespace Mate
 		private void PostTextBufferChanged(object Sender, EventArgs Event)
 		{
 			IsTextChanging = false;
-
-			ThreadHelper.ThrowIfNotOnUIThread();
-			//Meta.UpdateWindow();
 		}
 	}
 }
