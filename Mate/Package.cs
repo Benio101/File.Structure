@@ -29,6 +29,7 @@ namespace Mate
 	{
 		private static EnvDTE.Events         Events;
 		private static EnvDTE.DocumentEvents DocumentEvents;
+		private static EnvDTE.WindowEvents   WindowEvents;
 
 		protected override async System.Threading.Tasks.Task InitializeAsync
 		(
@@ -53,6 +54,15 @@ namespace Mate
 
 				// Clear `File structure` window when closing window with `C/C++` source code.
 				Window.RemoveAllEntries();
+			};
+
+			WindowEvents = Events.WindowEvents;
+			WindowEvents.WindowActivated += (GotFocus, LostFocus) =>
+			{
+				ThreadHelper.ThrowIfNotOnUIThread();
+				if (GotFocus.Document.Language != "C/C++") return;
+
+				Meta.UpdateWindow();
 			};
 		}
 	}
