@@ -40,30 +40,38 @@ namespace Mate
 			await base.InitializeAsync(Token, Progress);
 			await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync(Token);
 
-			var Table = new RunningDocumentTable(this);
-			Table.Advise(new RunningDocTableEvents());
+			#region Events
+				#region RunningDocumentTable
 
-			var DTE = Utils.GetDTE();
-			Events = DTE.Events;
+					var Table = new RunningDocumentTable(this);
+					Table.Advise(new RunningDocTableEvents());
 
-			DocumentEvents = Events.DocumentEvents;
-			DocumentEvents.DocumentClosing += Document =>
-			{
-				ThreadHelper.ThrowIfNotOnUIThread();
-				if (Document.Language != "C/C++") return;
+				#endregion
+				#region EnvDTE.Events
 
-				// Clear `File structure` window when closing window with `C/C++` source code.
-				Window.RemoveAllEntries();
-			};
+					var DTE = Utils.GetDTE();
+					Events = DTE.Events;
 
-			WindowEvents = Events.WindowEvents;
-			WindowEvents.WindowActivated += (GotFocus, LostFocus) =>
-			{
-				ThreadHelper.ThrowIfNotOnUIThread();
-				if (GotFocus.Document.Language != "C/C++") return;
+					DocumentEvents = Events.DocumentEvents;
+					DocumentEvents.DocumentClosing += Document =>
+					{
+						ThreadHelper.ThrowIfNotOnUIThread();
+						if (Document.Language != "C/C++") return;
 
-				Meta.UpdateWindow();
-			};
+						Mate.Events.OnBeforeDocumentClose();
+					};
+
+					WindowEvents = Events.WindowEvents;
+					WindowEvents.WindowActivated += (GotFocus, LostFocus) =>
+					{
+						ThreadHelper.ThrowIfNotOnUIThread();
+						if (GotFocus.Document.Language != "C/C++") return;
+
+						Mate.Events.OnAfterWindowActivate();
+					};
+
+				#endregion
+			#endregion
 		}
 	}
 }

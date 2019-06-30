@@ -1,5 +1,7 @@
 ﻿using System.Collections.Generic;
+using System.IO;
 using System.Runtime.InteropServices;
+using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -56,6 +58,62 @@ namespace Mate
 		/// Number of entries to display over focused entry when focusing it upon mouse click on active document.
 		private const int EntriesOverFocus = 15;
 
+		/// Types of regions supported by this extension.
+		private enum Region
+		{
+			None = 0,
+
+			Headers,
+			Meta,
+			Namespace,
+
+			Class,
+			Struct,
+			Union,
+			Concept,
+			Macro,
+
+			Public,
+			Protected,
+			Private,
+
+			Usings,
+			Friends,
+			Enums,
+			Components,
+			Members,
+			Delegates,
+			Fields,
+			Specials,
+			Constructors,
+			Operators,
+			Conversions,
+			Overrides,
+			Methods,
+			Events,
+			Getters,
+			Setters,
+			Functions,
+
+			Using,
+			Friend,
+			Enum,
+			Component,
+			Member,
+			Delegate,
+			Field,
+			Special,
+			Constructor,
+			Operator,
+			Conversion,
+			Override,
+			Method,
+			Event,
+			Getter,
+			Setter,
+			Function,
+		}
+
 		public Window()
 		:
 			base(null)
@@ -102,12 +160,12 @@ namespace Mate
 		/// \param  Value        Text Value to show in `File structure` window's entry (`""` for some types of regions).
 		/// \param  IndentLevel  Level of indentation (0 to 4) of entry (0 means no indentation, 4 means indent 4×).
 
-		internal static void AddEntry
+		private static void AddEntry
 		(
-			Meta.Region      Region,
-			int              LineNumber,
-			string           Value,
-			int              IndentLevel = 0
+			Region  Region,
+			int     LineNumber,
+			string  Value,
+			int     IndentLevel = 0
 		)
 		{
 			// Clamp $IndentLevel between 0 and 4.
@@ -162,7 +220,7 @@ namespace Mate
 			// Set @Name, @NameColor, and @Icon, depending on $Region.
 			switch (Region)
 			{
-				case Meta.Region.Headers:
+				case Region.Headers:
 
 					Name = "Headers";
 					NameColor = Color.FromRgb(224, 224, 224);
@@ -170,7 +228,7 @@ namespace Mate
 
 					break;
 
-				case Meta.Region.Meta:
+				case Region.Meta:
 
 					Name = "Meta";
 					NameColor = Color.FromRgb(224, 224, 224);
@@ -178,7 +236,7 @@ namespace Mate
 
 					break;
 
-				case Meta.Region.Namespace:
+				case Region.Namespace:
 
 					Name = Value;
 					NameColor = Color.FromRgb(128, 128, 128);
@@ -186,7 +244,7 @@ namespace Mate
 
 					break;
 
-				case Meta.Region.Class:
+				case Region.Class:
 
 					Name = Value;
 					NameColor = Color.FromRgb(176, 224, 128);
@@ -194,7 +252,7 @@ namespace Mate
 
 					break;
 
-				case Meta.Region.Struct:
+				case Region.Struct:
 
 					Name = Value;
 					NameColor = Color.FromRgb(176, 224, 128);
@@ -202,7 +260,7 @@ namespace Mate
 
 					break;
 
-				case Meta.Region.Union:
+				case Region.Union:
 
 					Name = Value;
 					NameColor = Color.FromRgb(176, 224, 128);
@@ -210,7 +268,7 @@ namespace Mate
 
 					break;
 
-				case Meta.Region.Concept:
+				case Region.Concept:
 
 					Name = Value;
 					NameColor = Color.FromRgb(128, 176, 224);
@@ -218,7 +276,7 @@ namespace Mate
 
 					break;
 
-				case Meta.Region.Macro:
+				case Region.Macro:
 
 					Name = Value;
 					NameColor = Color.FromRgb(176, 128, 224);
@@ -226,7 +284,7 @@ namespace Mate
 
 					break;
 
-				case Meta.Region.Public:
+				case Region.Public:
 
 					Name = "Public";
 					NameColor = Color.FromRgb(128, 176, 96);
@@ -234,7 +292,7 @@ namespace Mate
 
 					break;
 
-				case Meta.Region.Protected:
+				case Region.Protected:
 
 					Name = "Protected";
 					NameColor = Color.FromRgb(128, 176, 96);
@@ -242,7 +300,7 @@ namespace Mate
 
 					break;
 
-				case Meta.Region.Private:
+				case Region.Private:
 
 					Name = "Private";
 					NameColor = Color.FromRgb(128, 176, 96);
@@ -250,7 +308,7 @@ namespace Mate
 
 					break;
 
-				case Meta.Region.Usings:
+				case Region.Usings:
 
 					Name = "Usings";
 					NameColor = Color.FromRgb(128, 128, 128);
@@ -258,7 +316,7 @@ namespace Mate
 
 					break;
 
-				case Meta.Region.Friends:
+				case Region.Friends:
 
 					Name = "Friends";
 					NameColor = Color.FromRgb(128, 176, 224);
@@ -266,7 +324,7 @@ namespace Mate
 
 					break;
 
-				case Meta.Region.Enums:
+				case Region.Enums:
 
 					Name = "Enums";
 					NameColor = Color.FromRgb(224, 128, 128);
@@ -274,7 +332,7 @@ namespace Mate
 
 					break;
 
-				case Meta.Region.Components:
+				case Region.Components:
 
 					Name = "Components";
 					NameColor = Color.FromRgb(128, 224, 176);
@@ -282,7 +340,7 @@ namespace Mate
 
 					break;
 
-				case Meta.Region.Members:
+				case Region.Members:
 
 					Name = "Members";
 					NameColor = Color.FromRgb(224, 224, 128);
@@ -290,7 +348,7 @@ namespace Mate
 
 					break;
 
-				case Meta.Region.Delegates:
+				case Region.Delegates:
 
 					Name = "Delegates";
 					NameColor = Color.FromRgb(224, 128, 224);
@@ -298,7 +356,7 @@ namespace Mate
 
 					break;
 
-				case Meta.Region.Fields:
+				case Region.Fields:
 
 					Name = "Fields";
 					NameColor = Color.FromRgb(224, 128, 128);
@@ -306,7 +364,7 @@ namespace Mate
 
 					break;
 
-				case Meta.Region.Specials:
+				case Region.Specials:
 
 					Name = "Specials";
 					NameColor = Color.FromRgb(176, 224, 128);
@@ -314,7 +372,7 @@ namespace Mate
 
 					break;
 
-				case Meta.Region.Constructors:
+				case Region.Constructors:
 
 					Name = "Constructors";
 					NameColor = Color.FromRgb(176, 224, 128);
@@ -322,7 +380,7 @@ namespace Mate
 
 					break;
 
-				case Meta.Region.Operators:
+				case Region.Operators:
 
 					Name = "Operators";
 					NameColor = Color.FromRgb(224, 176, 128);
@@ -330,7 +388,7 @@ namespace Mate
 
 					break;
 
-				case Meta.Region.Conversions:
+				case Region.Conversions:
 
 					Name = "Conversions";
 					NameColor = Color.FromRgb(224, 176, 128);
@@ -338,7 +396,7 @@ namespace Mate
 
 					break;
 
-				case Meta.Region.Overrides:
+				case Region.Overrides:
 
 					Name = "Overrides";
 					NameColor = Color.FromRgb(128, 224, 176);
@@ -346,7 +404,7 @@ namespace Mate
 
 					break;
 
-				case Meta.Region.Methods:
+				case Region.Methods:
 
 					Name = "Methods";
 					NameColor = Color.FromRgb(224, 224, 128);
@@ -354,7 +412,7 @@ namespace Mate
 
 					break;
 
-				case Meta.Region.Events:
+				case Region.Events:
 
 					Name = "Events";
 					NameColor = Color.FromRgb(224, 128, 224);
@@ -362,7 +420,7 @@ namespace Mate
 
 					break;
 
-				case Meta.Region.Getters:
+				case Region.Getters:
 
 					Name = "Getters";
 					NameColor = Color.FromRgb(128, 176, 224);
@@ -370,7 +428,7 @@ namespace Mate
 
 					break;
 
-				case Meta.Region.Setters:
+				case Region.Setters:
 
 					Name = "Setters";
 					NameColor = Color.FromRgb(176, 128, 224);
@@ -378,7 +436,7 @@ namespace Mate
 
 					break;
 
-				case Meta.Region.Functions:
+				case Region.Functions:
 
 					Name = "Functions";
 					NameColor = Color.FromRgb(224, 128, 128);
@@ -386,7 +444,7 @@ namespace Mate
 
 					break;
 
-				case Meta.Region.Using:
+				case Region.Using:
 
 					Name = Value;
 					NameColor = Color.FromRgb(128, 128, 128);
@@ -394,7 +452,7 @@ namespace Mate
 
 					break;
 
-				case Meta.Region.Friend:
+				case Region.Friend:
 
 					Name = Value;
 					NameColor = Color.FromRgb(128, 176, 224);
@@ -402,7 +460,7 @@ namespace Mate
 
 					break;
 
-				case Meta.Region.Enum:
+				case Region.Enum:
 
 					Name = Value;
 					NameColor = Color.FromRgb(224, 128, 128);
@@ -410,7 +468,7 @@ namespace Mate
 
 					break;
 
-				case Meta.Region.Component:
+				case Region.Component:
 
 					Name = Value;
 					NameColor = Color.FromRgb(128, 224, 176);
@@ -418,7 +476,7 @@ namespace Mate
 
 					break;
 
-				case Meta.Region.Member:
+				case Region.Member:
 
 					Name = Value;
 					NameColor = Color.FromRgb(224, 224, 128);
@@ -426,7 +484,7 @@ namespace Mate
 
 					break;
 
-				case Meta.Region.Delegate:
+				case Region.Delegate:
 
 					Name = Value;
 					NameColor = Color.FromRgb(224, 128, 224);
@@ -434,7 +492,7 @@ namespace Mate
 
 					break;
 
-				case Meta.Region.Field:
+				case Region.Field:
 
 					Name = Value;
 					NameColor = Color.FromRgb(224, 128, 128);
@@ -442,7 +500,7 @@ namespace Mate
 
 					break;
 
-				case Meta.Region.Special:
+				case Region.Special:
 
 					Name = Value;
 					NameColor = Color.FromRgb(176, 224, 128);
@@ -450,7 +508,7 @@ namespace Mate
 
 					break;
 
-				case Meta.Region.Constructor:
+				case Region.Constructor:
 
 					Name = Value;
 					NameColor = Color.FromRgb(176, 224, 128);
@@ -458,7 +516,7 @@ namespace Mate
 
 					break;
 
-				case Meta.Region.Operator:
+				case Region.Operator:
 
 					Name = Value;
 					NameColor = Color.FromRgb(224, 176, 128);
@@ -466,7 +524,7 @@ namespace Mate
 
 					break;
 
-				case Meta.Region.Conversion:
+				case Region.Conversion:
 
 					Name = Value;
 					NameColor = Color.FromRgb(224, 176, 128);
@@ -474,7 +532,7 @@ namespace Mate
 
 					break;
 
-				case Meta.Region.Override:
+				case Region.Override:
 
 					Name = Value;
 					NameColor = Color.FromRgb(128, 224, 176);
@@ -482,7 +540,7 @@ namespace Mate
 
 					break;
 
-				case Meta.Region.Method:
+				case Region.Method:
 
 					Name = Value;
 					NameColor = Color.FromRgb(224, 224, 128);
@@ -490,7 +548,7 @@ namespace Mate
 
 					break;
 
-				case Meta.Region.Event:
+				case Region.Event:
 
 					Name = Value;
 					NameColor = Color.FromRgb(224, 128, 224);
@@ -498,7 +556,7 @@ namespace Mate
 
 					break;
 
-				case Meta.Region.Getter:
+				case Region.Getter:
 
 					Name = Value;
 					NameColor = Color.FromRgb(128, 176, 224);
@@ -506,7 +564,7 @@ namespace Mate
 
 					break;
 
-				case Meta.Region.Setter:
+				case Region.Setter:
 
 					Name = Value;
 					NameColor = Color.FromRgb(176, 128, 224);
@@ -514,7 +572,7 @@ namespace Mate
 
 					break;
 
-				case Meta.Region.Function:
+				case Region.Function:
 
 					Name = Value;
 					NameColor = Color.FromRgb(224, 128, 128);
@@ -638,15 +696,188 @@ namespace Mate
 		}
 
 		/// Remove all !Entries from `File structure` window.
-		public static void RemoveAllEntries()
+		internal static void RemoveAllEntries()
 		{
 			Entries.Clear();
 			Stack.Children.Clear();
 		}
 
+		/// \short    Update content of `File structure` window.
+		/// \details  Read active document, regenerate entries and replace them with current ones.
+
+		internal static void Update()
+		{
+			ThreadHelper.ThrowIfNotOnUIThread();
+
+			var Text = Utils.GetText();
+			if (Text == null) return;
+
+			var Reader = new StringReader(Text);
+			var LineNumber = 0;
+			string Line;
+			var IndentLevel = 0;
+			var bAccessLevelIndent = -1;
+
+			RemoveAllEntries();
+
+			while ((Line = Reader.ReadLine()) != null)
+			{
+				++LineNumber;
+				Match Match;
+
+				// #pragma region
+				{
+					Match = Regex.Match(Line, "^[ \t\v\f]*#pragma[ \t\v\f]+region[ \t\v\f]+(?<Region>[^ \t\v\f]+)[ \t\v\f]*(?<Desc>.*)");
+					if (Match.Length > 0)
+					{
+						var Region = Match.Groups["Region"].Value;
+						var Desc = Match.Groups["Desc"].Value;
+						var Value = "";
+
+						// ReSharper disable once ConvertIfStatementToSwitchStatement
+						if (Region == "enum" && Desc.StartsWith("class "))
+						{
+							Desc = Desc.Substring("class ".Length);
+						}
+
+						if (Region == "Enum" && Desc == "Classes")
+						{
+							Region = "Enums";
+							Desc = "";
+						}
+
+						var CurrentRegion = Mate.Window.Region.None;
+
+						switch (Region)
+						{
+							case "Headers":      CurrentRegion = Mate.Window.Region.Headers;      goto AddEntry;
+							case "Meta":         CurrentRegion = Mate.Window.Region.Meta;         goto AddEntry;
+							case "Usings":       CurrentRegion = Mate.Window.Region.Usings;       goto AddEntry;
+							case "Friends":      CurrentRegion = Mate.Window.Region.Friends;      goto AddEntry;
+							case "Enums":        CurrentRegion = Mate.Window.Region.Enums;        goto Return;
+							case "Components":   CurrentRegion = Mate.Window.Region.Components;   goto Return;
+							case "Members":      CurrentRegion = Mate.Window.Region.Members;      goto Return;
+							case "Delegates":    CurrentRegion = Mate.Window.Region.Delegates;    goto Return;
+							case "Fields":       CurrentRegion = Mate.Window.Region.Fields;       goto Return;
+							case "Specials":     CurrentRegion = Mate.Window.Region.Specials;     goto Return;
+							case "Constructors": CurrentRegion = Mate.Window.Region.Constructors; goto Return;
+							case "Operators":    CurrentRegion = Mate.Window.Region.Operators;    goto Return;
+							case "Conversions":  CurrentRegion = Mate.Window.Region.Conversions;  goto Return;
+							case "Overrides":    CurrentRegion = Mate.Window.Region.Overrides;    goto Return;
+							case "Methods":      CurrentRegion = Mate.Window.Region.Methods;      goto Return;
+							case "Events":       CurrentRegion = Mate.Window.Region.Events;       goto Return;
+							case "Getters":      CurrentRegion = Mate.Window.Region.Getters;      goto Return;
+							case "Setters":      CurrentRegion = Mate.Window.Region.Setters;      goto Return;
+							case "Functions":    CurrentRegion = Mate.Window.Region.Functions;    goto Return;
+						}
+
+						switch (Region)
+						{
+							case "namespace":    CurrentRegion = Mate.Window.Region.Namespace;    goto Match;
+							case "class":        CurrentRegion = Mate.Window.Region.Class;        goto Match;
+							case "struct":       CurrentRegion = Mate.Window.Region.Struct;       goto Match;
+							case "union":        CurrentRegion = Mate.Window.Region.Union;        goto Match;
+							case "concept":      CurrentRegion = Mate.Window.Region.Concept;      goto Match;
+							case "macro":        CurrentRegion = Mate.Window.Region.Macro;        goto Match;
+							case "using":        CurrentRegion = Mate.Window.Region.Using;        goto Match;
+							case "friend":       CurrentRegion = Mate.Window.Region.Friend;       goto Match;
+							case "enum":         CurrentRegion = Mate.Window.Region.Enum;         goto Match;
+							case "component":    CurrentRegion = Mate.Window.Region.Component;    goto Match;
+							case "member":       CurrentRegion = Mate.Window.Region.Member;       goto Match;
+							case "delegate":     CurrentRegion = Mate.Window.Region.Delegate;     goto Match;
+							case "field":        CurrentRegion = Mate.Window.Region.Field;        goto Match;
+							case "special":      CurrentRegion = Mate.Window.Region.Special;      goto Match;
+							case "constructor":  CurrentRegion = Mate.Window.Region.Constructor;  goto Match;
+							case "operator":     CurrentRegion = Mate.Window.Region.Operator;     goto Match;
+							case "conversion":   CurrentRegion = Mate.Window.Region.Conversion;   goto Match;
+							case "override":     CurrentRegion = Mate.Window.Region.Override;     goto Match;
+							case "method":       CurrentRegion = Mate.Window.Region.Method;       goto Match;
+							case "event":        CurrentRegion = Mate.Window.Region.Event;        goto Match;
+							case "getter":       CurrentRegion = Mate.Window.Region.Getter;       goto Match;
+							case "setter":       CurrentRegion = Mate.Window.Region.Setter;       goto Match;
+							case "function":     CurrentRegion = Mate.Window.Region.Function;     goto Match;
+
+							default:
+
+								Value = Region + " " + Desc;
+								break;
+
+							Match:
+
+								Value = Desc;
+								break;
+						}
+
+						AddEntry:
+						Return:
+
+							AddEntry(CurrentRegion, LineNumber, Value, IndentLevel);
+							++IndentLevel;
+					}
+				}
+
+				// #pragma endregion
+				{
+					Match = Regex.Match(Line, "^[ \t\v\f]*#pragma[ \t\v\f]+endregion[ \t\v\f]*$");
+					if (Match.Length > 0)
+					{
+						--IndentLevel;
+
+						if (bAccessLevelIndent == IndentLevel)
+						{
+							bAccessLevelIndent = -1;
+							--IndentLevel;
+						}
+					}
+				}
+
+				// access:
+				{
+					Match = Regex.Match(Line, "^[ \t\v\f]*(?<Access>(public|protected|private))[ \t\v\f]*:[ \t\v\f]*$");
+					if (Match.Length > 0)
+					{
+						var Access = Match.Groups["Access"].Value;
+						var AIndentLevel = bAccessLevelIndent == -1 ? IndentLevel : IndentLevel - 1;
+						switch (Access)
+						{
+							case "public":
+
+								AddEntry(Region.Public, LineNumber, "", AIndentLevel);
+								goto Match;
+
+							case "protected":
+
+								AddEntry(Region.Protected, LineNumber, "", AIndentLevel);
+								goto Match;
+
+							case "private":
+
+								AddEntry(Region.Private, LineNumber, "", AIndentLevel);
+
+								goto Match;
+
+							default:
+
+								break;
+
+							Match:
+
+								if (bAccessLevelIndent == -1)
+								{
+									bAccessLevelIndent = IndentLevel;
+									++IndentLevel;
+								}
+
+								break;
+						}
+					}
+				}
+			}
+		}
+
 		/// - Scroll `File structure` window to $LineNumber (or the nearest entry with line number smaller than $LineNumber).
 		/// - Focus entry in `File structure` window by given $LineNumber.
-		public static void ScrollToLine(int LineNumber)
+		internal static void ScrollToLine(int LineNumber)
 		{
 			ThreadHelper.ThrowIfNotOnUIThread();
 

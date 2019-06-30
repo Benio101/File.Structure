@@ -29,6 +29,7 @@ namespace Mate
 
 		/// \short           Print $Message in `Mate.Debug` output window.
 		/// \param  Message  Message to print.
+
 		internal static void Print(string Message)
 		{
 			ThreadHelper.ThrowIfNotOnUIThread();

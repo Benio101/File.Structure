@@ -41,7 +41,7 @@ namespace Mate
 			this.TextView.Caret.PositionChanged += OnCaretPositionChanged;
 
 			ThreadHelper.ThrowIfNotOnUIThread();
-			Meta.UpdateWindow();
+			Events.OnAfterTextViewCreate();
 		}
 
 		private static void OnCaretPositionChanged
@@ -51,9 +51,7 @@ namespace Mate
 		)
 		{
 			ThreadHelper.ThrowIfNotOnUIThread();
-
-			var CurrentLine = Utils.GetCurrentLine();
-			Window.ScrollToLine(CurrentLine);
+			Events.OnAfterCaretPositionChange();
 		}
 
 		private void OnTextBufferChanged
