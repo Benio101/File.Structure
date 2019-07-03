@@ -81,6 +81,7 @@ namespace Mate
 			Friends,
 			Enums,
 			Components,
+			Properties,
 			Members,
 			Delegates,
 			Fields,
@@ -99,6 +100,7 @@ namespace Mate
 			Friend,
 			Enum,
 			Component,
+			Property,
 			Member,
 			Delegate,
 			Field,
@@ -340,6 +342,14 @@ namespace Mate
 
 					break;
 
+				case Region.Properties:
+
+					Name = "Properties";
+					NameColor = Color.FromRgb(224, 176, 128);
+					Icon = Utils.GetIconFromBase64(Icons.SquareFullOrange, Size);
+
+					break;
+
 				case Region.Members:
 
 					Name = "Members";
@@ -473,6 +483,14 @@ namespace Mate
 					Name = Value;
 					NameColor = Color.FromRgb(128, 224, 176);
 					Icon = Utils.GetIconFromBase64(Icons.SquareFullTurquoise, Size);
+
+					break;
+
+				case Region.Property:
+
+					Name = Value;
+					NameColor = Color.FromRgb(224, 176, 128);
+					Icon = Utils.GetIconFromBase64(Icons.SquareFullOrange, Size);
 
 					break;
 
@@ -757,6 +775,7 @@ namespace Mate
 							case "Enums":        CurrentRegion = Mate.Window.Region.Enums;        goto Return;
 							case "Components":   CurrentRegion = Mate.Window.Region.Components;   goto Return;
 							case "Members":      CurrentRegion = Mate.Window.Region.Members;      goto Return;
+							case "Properties":   CurrentRegion = Mate.Window.Region.Properties;   goto Return;
 							case "Delegates":    CurrentRegion = Mate.Window.Region.Delegates;    goto Return;
 							case "Fields":       CurrentRegion = Mate.Window.Region.Fields;       goto Return;
 							case "Specials":     CurrentRegion = Mate.Window.Region.Specials;     goto Return;
@@ -784,6 +803,7 @@ namespace Mate
 							case "enum":         CurrentRegion = Mate.Window.Region.Enum;         goto Match;
 							case "component":    CurrentRegion = Mate.Window.Region.Component;    goto Match;
 							case "member":       CurrentRegion = Mate.Window.Region.Member;       goto Match;
+							case "property":     CurrentRegion = Mate.Window.Region.Property;     goto Match;
 							case "delegate":     CurrentRegion = Mate.Window.Region.Delegate;     goto Match;
 							case "field":        CurrentRegion = Mate.Window.Region.Field;        goto Match;
 							case "special":      CurrentRegion = Mate.Window.Region.Special;      goto Match;

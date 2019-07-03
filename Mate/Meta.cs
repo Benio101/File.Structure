@@ -45,6 +45,7 @@ namespace Mate
 		public const string SquareFullGray                 = "iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAJ0lEQVRIx+3NQQEAMAgEIF3ya64l5g8K0EmmDr06JhAIBAKBQPDHApCdAq9P4twiAAAAAElFTkSuQmCC";
 		public const string SquareFullWhite                = "iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAKElEQVRIx2N88ODBfwYaAiYGGoNRC0YtGLVg1IJRC0YtGLVg1ALqAADJ8wPPiy50nQAAAABJRU5ErkJggg==";
 		public const string SquareFullYellow               = "iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAKElEQVRIx2N88KDhPwMNARMDjcGoBaMWjFowasGoBaMWjFowagF1AABh5gNvWtN7lwAAAABJRU5ErkJggg==";
+		public const string SquareFullOrange               = "iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAKElEQVRIx2N8sKHhPwMNARMDjcGoBaMWjFowasGoBaMWjFowagF1AACtqAM/i15JLQAAAABJRU5ErkJggg==";
 		public const string SquareFullGreen                = "iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAKElEQVRIx2Pc8KDhPwMNARMDjcGoBaMWjFowasGoBaMWjFowagF1AACteAM/mda+NwAAAABJRU5ErkJggg==";
 		public const string SquareFullRed                  = "iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAKElEQVRIx2N80NDwn4GGgImBxmDUglELRi0YtWDUglELRi0YtYA6AAD5agMPtp2M4AAAAABJRU5ErkJggg==";
 		public const string SquareFullPurple               = "iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAKElEQVRIx2Pc0PDgPwMNARMDjcGoBaMWjFowasGoBaMWjFowagF1AACtGAM/RxK1/gAAAABJRU5ErkJggg==";
