@@ -79,41 +79,43 @@ namespace Mate
 
 			Usings,
 			Friends,
-			Enums,
 			Components,
-			Properties,
 			Members,
-			Delegates,
+			Properties,
 			Fields,
+			Enums,
+			Delegates,
+
+			Setters,
+			Getters,
+			Overrides,
 			Specials,
 			Constructors,
+			Methods,
 			Operators,
 			Conversions,
-			Overrides,
-			Methods,
-			Events,
-			Getters,
-			Setters,
 			Functions,
+			Events,
 
 			Using,
 			Friend,
-			Enum,
 			Component,
-			Property,
 			Member,
-			Delegate,
+			Property,
 			Field,
+			Enum,
+			Delegate,
+
+			Setter,
+			Getter,
+			Override,
 			Special,
 			Constructor,
+			Method,
 			Operator,
 			Conversion,
-			Override,
-			Method,
-			Event,
-			Getter,
-			Setter,
 			Function,
+			Event,
 		}
 
 		public Window()
@@ -326,27 +328,11 @@ namespace Mate
 
 					break;
 
-				case Region.Enums:
-
-					Name = "Enums";
-					NameColor = Color.FromRgb(224, 128, 128);
-					Icon = Utils.GetIconFromBase64(Icons.SquareDottedRed, Size);
-
-					break;
-
 				case Region.Components:
 
 					Name = "Components";
 					NameColor = Color.FromRgb(128, 224, 176);
 					Icon = Utils.GetIconFromBase64(Icons.SquareFullTurquoise, Size);
-
-					break;
-
-				case Region.Properties:
-
-					Name = "Properties";
-					NameColor = Color.FromRgb(224, 176, 128);
-					Icon = Utils.GetIconFromBase64(Icons.SquareFullOrange, Size);
 
 					break;
 
@@ -358,11 +344,11 @@ namespace Mate
 
 					break;
 
-				case Region.Delegates:
+				case Region.Properties:
 
-					Name = "Delegates";
-					NameColor = Color.FromRgb(224, 128, 224);
-					Icon = Utils.GetIconFromBase64(Icons.SquareFullPink, Size);
+					Name = "Properties";
+					NameColor = Color.FromRgb(224, 176, 128);
+					Icon = Utils.GetIconFromBase64(Icons.SquareFullOrange, Size);
 
 					break;
 
@@ -371,6 +357,46 @@ namespace Mate
 					Name = "Fields";
 					NameColor = Color.FromRgb(224, 128, 128);
 					Icon = Utils.GetIconFromBase64(Icons.SquareFullRed, Size);
+
+					break;
+
+				case Region.Enums:
+
+					Name = "Enums";
+					NameColor = Color.FromRgb(224, 128, 128);
+					Icon = Utils.GetIconFromBase64(Icons.SquareDottedRed, Size);
+
+					break;
+
+				case Region.Delegates:
+
+					Name = "Delegates";
+					NameColor = Color.FromRgb(224, 128, 224);
+					Icon = Utils.GetIconFromBase64(Icons.SquareFullPink, Size);
+
+					break;
+
+				case Region.Setters:
+
+					Name = "Setters";
+					NameColor = Color.FromRgb(176, 128, 224);
+					Icon = Utils.GetIconFromBase64(Icons.CircleFullPurple, Size);
+
+					break;
+
+				case Region.Getters:
+
+					Name = "Getters";
+					NameColor = Color.FromRgb(128, 176, 224);
+					Icon = Utils.GetIconFromBase64(Icons.CircleFullBlue, Size);
+
+					break;
+
+				case Region.Overrides:
+
+					Name = "Overrides";
+					NameColor = Color.FromRgb(128, 224, 176);
+					Icon = Utils.GetIconFromBase64(Icons.CircleFullTurquoise, Size);
 
 					break;
 
@@ -390,6 +416,14 @@ namespace Mate
 
 					break;
 
+				case Region.Methods:
+
+					Name = "Methods";
+					NameColor = Color.FromRgb(224, 224, 128);
+					Icon = Utils.GetIconFromBase64(Icons.CircleFullYellow, Size);
+
+					break;
+
 				case Region.Operators:
 
 					Name = "Operators";
@@ -406,19 +440,11 @@ namespace Mate
 
 					break;
 
-				case Region.Overrides:
+				case Region.Functions:
 
-					Name = "Overrides";
-					NameColor = Color.FromRgb(128, 224, 176);
-					Icon = Utils.GetIconFromBase64(Icons.CircleFullTurquoise, Size);
-
-					break;
-
-				case Region.Methods:
-
-					Name = "Methods";
-					NameColor = Color.FromRgb(224, 224, 128);
-					Icon = Utils.GetIconFromBase64(Icons.CircleFullYellow, Size);
+					Name = "Functions";
+					NameColor = Color.FromRgb(224, 128, 128);
+					Icon = Utils.GetIconFromBase64(Icons.CircleFullRed, Size);
 
 					break;
 
@@ -427,30 +453,6 @@ namespace Mate
 					Name = "Events";
 					NameColor = Color.FromRgb(224, 128, 224);
 					Icon = Utils.GetIconFromBase64(Icons.CircleFullPink, Size);
-
-					break;
-
-				case Region.Getters:
-
-					Name = "Getters";
-					NameColor = Color.FromRgb(128, 176, 224);
-					Icon = Utils.GetIconFromBase64(Icons.CircleFullBlue, Size);
-
-					break;
-
-				case Region.Setters:
-
-					Name = "Setters";
-					NameColor = Color.FromRgb(176, 128, 224);
-					Icon = Utils.GetIconFromBase64(Icons.CircleFullPurple, Size);
-
-					break;
-
-				case Region.Functions:
-
-					Name = "Functions";
-					NameColor = Color.FromRgb(224, 128, 128);
-					Icon = Utils.GetIconFromBase64(Icons.CircleFullRed, Size);
 
 					break;
 
@@ -470,27 +472,11 @@ namespace Mate
 
 					break;
 
-				case Region.Enum:
-
-					Name = Value;
-					NameColor = Color.FromRgb(224, 128, 128);
-					Icon = Utils.GetIconFromBase64(Icons.SquareDottedRed, Size);
-
-					break;
-
 				case Region.Component:
 
 					Name = Value;
 					NameColor = Color.FromRgb(128, 224, 176);
 					Icon = Utils.GetIconFromBase64(Icons.SquareFullTurquoise, Size);
-
-					break;
-
-				case Region.Property:
-
-					Name = Value;
-					NameColor = Color.FromRgb(224, 176, 128);
-					Icon = Utils.GetIconFromBase64(Icons.SquareFullOrange, Size);
 
 					break;
 
@@ -502,11 +488,11 @@ namespace Mate
 
 					break;
 
-				case Region.Delegate:
+				case Region.Property:
 
 					Name = Value;
-					NameColor = Color.FromRgb(224, 128, 224);
-					Icon = Utils.GetIconFromBase64(Icons.SquareFullPink, Size);
+					NameColor = Color.FromRgb(224, 176, 128);
+					Icon = Utils.GetIconFromBase64(Icons.SquareFullOrange, Size);
 
 					break;
 
@@ -515,6 +501,46 @@ namespace Mate
 					Name = Value;
 					NameColor = Color.FromRgb(224, 128, 128);
 					Icon = Utils.GetIconFromBase64(Icons.SquareFullRed, Size);
+
+					break;
+
+				case Region.Enum:
+
+					Name = Value;
+					NameColor = Color.FromRgb(224, 128, 128);
+					Icon = Utils.GetIconFromBase64(Icons.SquareDottedRed, Size);
+
+					break;
+
+				case Region.Delegate:
+
+					Name = Value;
+					NameColor = Color.FromRgb(224, 128, 224);
+					Icon = Utils.GetIconFromBase64(Icons.SquareFullPink, Size);
+
+					break;
+
+				case Region.Setter:
+
+					Name = Value;
+					NameColor = Color.FromRgb(176, 128, 224);
+					Icon = Utils.GetIconFromBase64(Icons.CircleFullPurple, Size);
+
+					break;
+
+				case Region.Getter:
+
+					Name = Value;
+					NameColor = Color.FromRgb(128, 176, 224);
+					Icon = Utils.GetIconFromBase64(Icons.CircleFullBlue, Size);
+
+					break;
+
+				case Region.Override:
+
+					Name = Value;
+					NameColor = Color.FromRgb(128, 224, 176);
+					Icon = Utils.GetIconFromBase64(Icons.CircleFullTurquoise, Size);
 
 					break;
 
@@ -534,6 +560,14 @@ namespace Mate
 
 					break;
 
+				case Region.Method:
+
+					Name = Value;
+					NameColor = Color.FromRgb(224, 224, 128);
+					Icon = Utils.GetIconFromBase64(Icons.CircleFullYellow, Size);
+
+					break;
+
 				case Region.Operator:
 
 					Name = Value;
@@ -550,19 +584,11 @@ namespace Mate
 
 					break;
 
-				case Region.Override:
+				case Region.Function:
 
 					Name = Value;
-					NameColor = Color.FromRgb(128, 224, 176);
-					Icon = Utils.GetIconFromBase64(Icons.CircleFullTurquoise, Size);
-
-					break;
-
-				case Region.Method:
-
-					Name = Value;
-					NameColor = Color.FromRgb(224, 224, 128);
-					Icon = Utils.GetIconFromBase64(Icons.CircleFullYellow, Size);
+					NameColor = Color.FromRgb(224, 128, 128);
+					Icon = Utils.GetIconFromBase64(Icons.CircleFullRed, Size);
 
 					break;
 
@@ -571,30 +597,6 @@ namespace Mate
 					Name = Value;
 					NameColor = Color.FromRgb(224, 128, 224);
 					Icon = Utils.GetIconFromBase64(Icons.CircleFullPink, Size);
-
-					break;
-
-				case Region.Getter:
-
-					Name = Value;
-					NameColor = Color.FromRgb(128, 176, 224);
-					Icon = Utils.GetIconFromBase64(Icons.CircleFullBlue, Size);
-
-					break;
-
-				case Region.Setter:
-
-					Name = Value;
-					NameColor = Color.FromRgb(176, 128, 224);
-					Icon = Utils.GetIconFromBase64(Icons.CircleFullPurple, Size);
-
-					break;
-
-				case Region.Function:
-
-					Name = Value;
-					NameColor = Color.FromRgb(224, 128, 128);
-					Icon = Utils.GetIconFromBase64(Icons.CircleFullRed, Size);
 
 					break;
 			}
