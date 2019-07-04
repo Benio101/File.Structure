@@ -56,7 +56,7 @@ namespace Mate
 		private const int EntryHeight = Size + MarginSize * 4;
 
 		/// Number of entries to display over focused entry when focusing it upon mouse click on active document.
-		private const int EntriesOverFocus = 15;
+		private const int EntriesOverFocus = 17;
 
 		/// Types of regions supported by this extension.
 		private enum Region
@@ -65,17 +65,13 @@ namespace Mate
 
 			Headers,
 			Meta,
+			Macro,
 			Namespace,
 
-			Macro,
+			Concept,
 			Class,
 			Struct,
 			Union,
-			Concept,
-
-			Public,
-			Protected,
-			Private,
 
 			Usings,
 			Friends,
@@ -116,6 +112,10 @@ namespace Mate
 			Conversion,
 			Function,
 			Event,
+
+			Public,
+			Protected,
+			Private,
 		}
 
 		public Window()
@@ -240,6 +240,14 @@ namespace Mate
 
 					break;
 
+				case Region.Macro:
+
+					Name = Value;
+					NameColor = Color.FromRgb(176, 128, 224);
+					Icon = Utils.GetIconFromBase64(Icons.SquareFullPurple, Size);
+
+					break;
+
 				case Region.Namespace:
 
 					Name = Value;
@@ -248,11 +256,11 @@ namespace Mate
 
 					break;
 
-				case Region.Macro:
+				case Region.Concept:
 
 					Name = Value;
-					NameColor = Color.FromRgb(176, 128, 224);
-					Icon = Utils.GetIconFromBase64(Icons.SquareFullPurple, Size);
+					NameColor = Color.FromRgb(176, 224, 128);
+					Icon = Utils.GetIconFromBase64(Icons.SquareFullGreen, Size);
 
 					break;
 
@@ -277,38 +285,6 @@ namespace Mate
 					Name = Value;
 					NameColor = Color.FromRgb(176, 224, 128);
 					Icon = Utils.GetIconFromBase64(Icons.SquareDottedGreen, Size);
-
-					break;
-
-				case Region.Concept:
-
-					Name = Value;
-					NameColor = Color.FromRgb(176, 224, 128);
-					Icon = Utils.GetIconFromBase64(Icons.SquareFullGreen, Size);
-
-					break;
-
-				case Region.Public:
-
-					Name = "Public";
-					NameColor = Color.FromRgb(128, 176, 96);
-					Icon = Utils.GetIconFromBase64(Icons.CircleSmallDarkGreen, Size);
-
-					break;
-
-				case Region.Protected:
-
-					Name = "Protected";
-					NameColor = Color.FromRgb(152, 152, 96);
-					Icon = Utils.GetIconFromBase64(Icons.CircleSmallDarkYellow, Size);
-
-					break;
-
-				case Region.Private:
-
-					Name = "Private";
-					NameColor = Color.FromRgb(176, 128, 96);
-					Icon = Utils.GetIconFromBase64(Icons.CircleSmallDarkRed, Size);
 
 					break;
 
@@ -599,6 +575,30 @@ namespace Mate
 					Icon = Utils.GetIconFromBase64(Icons.CircleFullPink, Size);
 
 					break;
+
+				case Region.Public:
+
+					Name = "Public";
+					NameColor = Color.FromRgb(128, 176, 96);
+					Icon = Utils.GetIconFromBase64(Icons.CircleSmallDarkGreen, Size);
+
+					break;
+
+				case Region.Protected:
+
+					Name = "Protected";
+					NameColor = Color.FromRgb(152, 152, 96);
+					Icon = Utils.GetIconFromBase64(Icons.CircleSmallDarkYellow, Size);
+
+					break;
+
+				case Region.Private:
+
+					Name = "Private";
+					NameColor = Color.FromRgb(176, 128, 96);
+					Icon = Utils.GetIconFromBase64(Icons.CircleSmallDarkRed, Size);
+
+					break;
 			}
 
 			#region Line number
@@ -688,9 +688,30 @@ namespace Mate
 					Text = Name,
 					TextAlignment = TextAlignment.Left,
 					Width = Size * NameWidth,
+					MaxWidth = Size * NameWidth,
 				};
 
 				Stack.Children.Add(NameBlock);
+
+			#endregion
+			#region Indent
+
+				if (IndentLevel <= 3)
+				{
+					Stack.Children.Add(IndentBlock3);
+					if (IndentLevel <= 2)
+					{
+						Stack.Children.Add(IndentBlock2);
+						if (IndentLevel <= 1)
+						{
+							Stack.Children.Add(IndentBlock1);
+							if (IndentLevel <= 0)
+							{
+								Stack.Children.Add(IndentBlock0);
+							}
+						}
+					}
+				}
 
 			#endregion
 
@@ -770,54 +791,54 @@ namespace Mate
 
 						switch (Region)
 						{
-							case "Headers":      CurrentRegion = Mate.Window.Region.Headers;      goto AddEntry;
-							case "Meta":         CurrentRegion = Mate.Window.Region.Meta;         goto AddEntry;
-							case "Usings":       CurrentRegion = Mate.Window.Region.Usings;       goto AddEntry;
-							case "Friends":      CurrentRegion = Mate.Window.Region.Friends;      goto AddEntry;
-							case "Enums":        CurrentRegion = Mate.Window.Region.Enums;        goto Return;
+							case "Headers":      CurrentRegion = Mate.Window.Region.Headers;      goto Return;
+							case "Meta":         CurrentRegion = Mate.Window.Region.Meta;         goto Return;
+							case "Usings":       CurrentRegion = Mate.Window.Region.Usings;       goto Return;
+							case "Friends":      CurrentRegion = Mate.Window.Region.Friends;      goto Return;
 							case "Components":   CurrentRegion = Mate.Window.Region.Components;   goto Return;
 							case "Members":      CurrentRegion = Mate.Window.Region.Members;      goto Return;
 							case "Properties":   CurrentRegion = Mate.Window.Region.Properties;   goto Return;
-							case "Delegates":    CurrentRegion = Mate.Window.Region.Delegates;    goto Return;
 							case "Fields":       CurrentRegion = Mate.Window.Region.Fields;       goto Return;
+							case "Enums":        CurrentRegion = Mate.Window.Region.Enums;        goto Return;
+							case "Delegates":    CurrentRegion = Mate.Window.Region.Delegates;    goto Return;
+							case "Setters":      CurrentRegion = Mate.Window.Region.Setters;      goto Return;
+							case "Getters":      CurrentRegion = Mate.Window.Region.Getters;      goto Return;
+							case "Overrides":    CurrentRegion = Mate.Window.Region.Overrides;    goto Return;
 							case "Specials":     CurrentRegion = Mate.Window.Region.Specials;     goto Return;
 							case "Constructors": CurrentRegion = Mate.Window.Region.Constructors; goto Return;
+							case "Methods":      CurrentRegion = Mate.Window.Region.Methods;      goto Return;
 							case "Operators":    CurrentRegion = Mate.Window.Region.Operators;    goto Return;
 							case "Conversions":  CurrentRegion = Mate.Window.Region.Conversions;  goto Return;
-							case "Overrides":    CurrentRegion = Mate.Window.Region.Overrides;    goto Return;
-							case "Methods":      CurrentRegion = Mate.Window.Region.Methods;      goto Return;
-							case "Events":       CurrentRegion = Mate.Window.Region.Events;       goto Return;
-							case "Getters":      CurrentRegion = Mate.Window.Region.Getters;      goto Return;
-							case "Setters":      CurrentRegion = Mate.Window.Region.Setters;      goto Return;
 							case "Functions":    CurrentRegion = Mate.Window.Region.Functions;    goto Return;
+							case "Events":       CurrentRegion = Mate.Window.Region.Events;       goto Return;
 						}
 
 						switch (Region)
 						{
+							case "macro":        CurrentRegion = Mate.Window.Region.Macro;        goto Match;
 							case "namespace":    CurrentRegion = Mate.Window.Region.Namespace;    goto Match;
+							case "concept":      CurrentRegion = Mate.Window.Region.Concept;      goto Match;
 							case "class":        CurrentRegion = Mate.Window.Region.Class;        goto Match;
 							case "struct":       CurrentRegion = Mate.Window.Region.Struct;       goto Match;
 							case "union":        CurrentRegion = Mate.Window.Region.Union;        goto Match;
-							case "concept":      CurrentRegion = Mate.Window.Region.Concept;      goto Match;
-							case "macro":        CurrentRegion = Mate.Window.Region.Macro;        goto Match;
 							case "using":        CurrentRegion = Mate.Window.Region.Using;        goto Match;
 							case "friend":       CurrentRegion = Mate.Window.Region.Friend;       goto Match;
-							case "enum":         CurrentRegion = Mate.Window.Region.Enum;         goto Match;
 							case "component":    CurrentRegion = Mate.Window.Region.Component;    goto Match;
 							case "member":       CurrentRegion = Mate.Window.Region.Member;       goto Match;
 							case "property":     CurrentRegion = Mate.Window.Region.Property;     goto Match;
-							case "delegate":     CurrentRegion = Mate.Window.Region.Delegate;     goto Match;
 							case "field":        CurrentRegion = Mate.Window.Region.Field;        goto Match;
+							case "enum":         CurrentRegion = Mate.Window.Region.Enum;         goto Match;
+							case "delegate":     CurrentRegion = Mate.Window.Region.Delegate;     goto Match;
+							case "setter":       CurrentRegion = Mate.Window.Region.Setter;       goto Match;
+							case "getter":       CurrentRegion = Mate.Window.Region.Getter;       goto Match;
+							case "override":     CurrentRegion = Mate.Window.Region.Override;     goto Match;
 							case "special":      CurrentRegion = Mate.Window.Region.Special;      goto Match;
 							case "constructor":  CurrentRegion = Mate.Window.Region.Constructor;  goto Match;
+							case "method":       CurrentRegion = Mate.Window.Region.Method;       goto Match;
 							case "operator":     CurrentRegion = Mate.Window.Region.Operator;     goto Match;
 							case "conversion":   CurrentRegion = Mate.Window.Region.Conversion;   goto Match;
-							case "override":     CurrentRegion = Mate.Window.Region.Override;     goto Match;
-							case "method":       CurrentRegion = Mate.Window.Region.Method;       goto Match;
-							case "event":        CurrentRegion = Mate.Window.Region.Event;        goto Match;
-							case "getter":       CurrentRegion = Mate.Window.Region.Getter;       goto Match;
-							case "setter":       CurrentRegion = Mate.Window.Region.Setter;       goto Match;
 							case "function":     CurrentRegion = Mate.Window.Region.Function;     goto Match;
+							case "event":        CurrentRegion = Mate.Window.Region.Event;        goto Match;
 
 							default:
 
@@ -830,7 +851,6 @@ namespace Mate
 								break;
 						}
 
-						AddEntry:
 						Return:
 
 							AddEntry(CurrentRegion, LineNumber, Value, IndentLevel);
