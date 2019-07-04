@@ -67,11 +67,11 @@ namespace Mate
 			Meta,
 			Namespace,
 
+			Macro,
 			Class,
 			Struct,
 			Union,
 			Concept,
-			Macro,
 
 			Public,
 			Protected,
@@ -248,6 +248,14 @@ namespace Mate
 
 					break;
 
+				case Region.Macro:
+
+					Name = Value;
+					NameColor = Color.FromRgb(176, 128, 224);
+					Icon = Utils.GetIconFromBase64(Icons.SquareFullPurple, Size);
+
+					break;
+
 				case Region.Class:
 
 					Name = Value;
@@ -277,14 +285,6 @@ namespace Mate
 					Name = Value;
 					NameColor = Color.FromRgb(176, 224, 128);
 					Icon = Utils.GetIconFromBase64(Icons.SquareFullGreen, Size);
-
-					break;
-
-				case Region.Macro:
-
-					Name = Value;
-					NameColor = Color.FromRgb(176, 128, 224);
-					Icon = Utils.GetIconFromBase64(Icons.SquareFullPurple, Size);
 
 					break;
 
