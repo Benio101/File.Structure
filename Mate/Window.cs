@@ -275,8 +275,8 @@ namespace Mate
 				case Region.Concept:
 
 					Name = Value;
-					NameColor = Color.FromRgb(128, 176, 224);
-					Icon = Utils.GetIconFromBase64(Icons.SquareDottedBlue, Size);
+					NameColor = Color.FromRgb(176, 224, 128);
+					Icon = Utils.GetIconFromBase64(Icons.SquareFullGreen, Size);
 
 					break;
 
