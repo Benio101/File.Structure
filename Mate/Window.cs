@@ -292,23 +292,23 @@ namespace Mate
 
 					Name = "Public";
 					NameColor = Color.FromRgb(128, 176, 96);
-					Icon = Utils.GetIconFromBase64(Icons.CircleSmallGreen, Size);
+					Icon = Utils.GetIconFromBase64(Icons.CircleSmallDarkGreen, Size);
 
 					break;
 
 				case Region.Protected:
 
 					Name = "Protected";
-					NameColor = Color.FromRgb(128, 176, 96);
-					Icon = Utils.GetIconFromBase64(Icons.CircleSmallGreen, Size);
+					NameColor = Color.FromRgb(152, 152, 96);
+					Icon = Utils.GetIconFromBase64(Icons.CircleSmallDarkYellow, Size);
 
 					break;
 
 				case Region.Private:
 
 					Name = "Private";
-					NameColor = Color.FromRgb(128, 176, 96);
-					Icon = Utils.GetIconFromBase64(Icons.CircleSmallGreen, Size);
+					NameColor = Color.FromRgb(176, 128, 96);
+					Icon = Utils.GetIconFromBase64(Icons.CircleSmallDarkRed, Size);
 
 					break;
 
