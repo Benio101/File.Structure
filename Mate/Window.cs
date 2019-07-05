@@ -80,6 +80,7 @@ namespace Mate
 			Properties,
 			Fields,
 			Enums,
+			EnumsUnscoped,
 			Delegates,
 
 			Setters,
@@ -100,6 +101,7 @@ namespace Mate
 			Property,
 			Field,
 			Enum,
+			EnumUnscoped,
 			Delegate,
 
 			Setter,
@@ -344,6 +346,14 @@ namespace Mate
 
 					break;
 
+				case Region.EnumsUnscoped:
+
+					Name = "Enums (unscoped)";
+					NameColor = Color.FromRgb(224, 128, 128);
+					Icon = Utils.GetIconFromBase64(Icons.SquareDottedRed, Size);
+
+					break;
+
 				case Region.Delegates:
 
 					Name = "Delegates";
@@ -481,6 +491,14 @@ namespace Mate
 					break;
 
 				case Region.Enum:
+
+					Name = Value;
+					NameColor = Color.FromRgb(224, 128, 128);
+					Icon = Utils.GetIconFromBase64(Icons.SquareDottedRed, Size);
+
+					break;
+
+				case Region.EnumUnscoped:
 
 					Name = Value;
 					NameColor = Color.FromRgb(224, 128, 128);
@@ -776,12 +794,42 @@ namespace Mate
 						var Value = "";
 
 						// ReSharper disable once ConvertIfStatementToSwitchStatement
-						if (Region == "enum" && Desc.StartsWith("class "))
+						if (Region == "enum")
 						{
-							Desc = Desc.Substring("class ".Length);
+							if (Desc.StartsWith("class "))
+							{
+								Region = "enum class";
+								Desc = Desc.Substring("class ".Length);
+							}
+
+							else if (Region == "enum" && Desc.StartsWith("struct "))
+							{
+								Region = "enum class";
+								Desc = Desc.Substring("struct ".Length);
+							}
+
+							else
+							{
+								Region = "enum";
+							}
 						}
 
-						if (Region == "Enum" && Desc == "Classes")
+						else if (Region == "Enums")
+						{
+							Region = "Enums (unscoped)";
+						}
+
+						// ReSharper disable once ConvertIfStatementToSwitchStatement
+						else if
+						(
+								Region == "Enum"
+							&&	(
+										Desc == "Classes"
+									||	Desc == "classes"
+									||	Desc == "Structs"
+									||	Desc == "structs"
+								)
+						)
 						{
 							Region = "Enums";
 							Desc = "";
@@ -791,54 +839,56 @@ namespace Mate
 
 						switch (Region)
 						{
-							case "Headers":      CurrentRegion = Mate.Window.Region.Headers;      goto Return;
-							case "Meta":         CurrentRegion = Mate.Window.Region.Meta;         goto Return;
-							case "Usings":       CurrentRegion = Mate.Window.Region.Usings;       goto Return;
-							case "Friends":      CurrentRegion = Mate.Window.Region.Friends;      goto Return;
-							case "Components":   CurrentRegion = Mate.Window.Region.Components;   goto Return;
-							case "Members":      CurrentRegion = Mate.Window.Region.Members;      goto Return;
-							case "Properties":   CurrentRegion = Mate.Window.Region.Properties;   goto Return;
-							case "Fields":       CurrentRegion = Mate.Window.Region.Fields;       goto Return;
-							case "Enums":        CurrentRegion = Mate.Window.Region.Enums;        goto Return;
-							case "Delegates":    CurrentRegion = Mate.Window.Region.Delegates;    goto Return;
-							case "Setters":      CurrentRegion = Mate.Window.Region.Setters;      goto Return;
-							case "Getters":      CurrentRegion = Mate.Window.Region.Getters;      goto Return;
-							case "Overrides":    CurrentRegion = Mate.Window.Region.Overrides;    goto Return;
-							case "Specials":     CurrentRegion = Mate.Window.Region.Specials;     goto Return;
-							case "Constructors": CurrentRegion = Mate.Window.Region.Constructors; goto Return;
-							case "Methods":      CurrentRegion = Mate.Window.Region.Methods;      goto Return;
-							case "Operators":    CurrentRegion = Mate.Window.Region.Operators;    goto Return;
-							case "Conversions":  CurrentRegion = Mate.Window.Region.Conversions;  goto Return;
-							case "Functions":    CurrentRegion = Mate.Window.Region.Functions;    goto Return;
-							case "Events":       CurrentRegion = Mate.Window.Region.Events;       goto Return;
+							case "Headers":          CurrentRegion = Mate.Window.Region.Headers;       goto Return;
+							case "Meta":             CurrentRegion = Mate.Window.Region.Meta;          goto Return;
+							case "Usings":           CurrentRegion = Mate.Window.Region.Usings;        goto Return;
+							case "Friends":          CurrentRegion = Mate.Window.Region.Friends;       goto Return;
+							case "Components":       CurrentRegion = Mate.Window.Region.Components;    goto Return;
+							case "Members":          CurrentRegion = Mate.Window.Region.Members;       goto Return;
+							case "Properties":       CurrentRegion = Mate.Window.Region.Properties;    goto Return;
+							case "Fields":           CurrentRegion = Mate.Window.Region.Fields;        goto Return;
+							case "Enums":            CurrentRegion = Mate.Window.Region.Enums;         goto Return;
+							case "Enums (unscoped)": CurrentRegion = Mate.Window.Region.EnumsUnscoped; goto Return;
+							case "Delegates":        CurrentRegion = Mate.Window.Region.Delegates;     goto Return;
+							case "Setters":          CurrentRegion = Mate.Window.Region.Setters;       goto Return;
+							case "Getters":          CurrentRegion = Mate.Window.Region.Getters;       goto Return;
+							case "Overrides":        CurrentRegion = Mate.Window.Region.Overrides;     goto Return;
+							case "Specials":         CurrentRegion = Mate.Window.Region.Specials;      goto Return;
+							case "Constructors":     CurrentRegion = Mate.Window.Region.Constructors;  goto Return;
+							case "Methods":          CurrentRegion = Mate.Window.Region.Methods;       goto Return;
+							case "Operators":        CurrentRegion = Mate.Window.Region.Operators;     goto Return;
+							case "Conversions":      CurrentRegion = Mate.Window.Region.Conversions;   goto Return;
+							case "Functions":        CurrentRegion = Mate.Window.Region.Functions;     goto Return;
+							case "Events":           CurrentRegion = Mate.Window.Region.Events;        goto Return;
 						}
 
 						switch (Region)
 						{
-							case "macro":        CurrentRegion = Mate.Window.Region.Macro;        goto Match;
-							case "namespace":    CurrentRegion = Mate.Window.Region.Namespace;    goto Match;
-							case "concept":      CurrentRegion = Mate.Window.Region.Concept;      goto Match;
-							case "class":        CurrentRegion = Mate.Window.Region.Class;        goto Match;
-							case "struct":       CurrentRegion = Mate.Window.Region.Struct;       goto Match;
-							case "union":        CurrentRegion = Mate.Window.Region.Union;        goto Match;
-							case "using":        CurrentRegion = Mate.Window.Region.Using;        goto Match;
-							case "friend":       CurrentRegion = Mate.Window.Region.Friend;       goto Match;
-							case "component":    CurrentRegion = Mate.Window.Region.Component;    goto Match;
-							case "member":       CurrentRegion = Mate.Window.Region.Member;       goto Match;
-							case "property":     CurrentRegion = Mate.Window.Region.Property;     goto Match;
-							case "field":        CurrentRegion = Mate.Window.Region.Field;        goto Match;
-							case "enum":         CurrentRegion = Mate.Window.Region.Enum;         goto Match;
-							case "delegate":     CurrentRegion = Mate.Window.Region.Delegate;     goto Match;
-							case "setter":       CurrentRegion = Mate.Window.Region.Setter;       goto Match;
-							case "getter":       CurrentRegion = Mate.Window.Region.Getter;       goto Match;
-							case "override":     CurrentRegion = Mate.Window.Region.Override;     goto Match;
-							case "special":      CurrentRegion = Mate.Window.Region.Special;      goto Match;
-							case "constructor":  CurrentRegion = Mate.Window.Region.Constructor;  goto Match;
-							case "method":       CurrentRegion = Mate.Window.Region.Method;       goto Match;
-							case "operator":     CurrentRegion = Mate.Window.Region.Operator;     goto Match;
-							case "conversion":   CurrentRegion = Mate.Window.Region.Conversion;   goto Match;
-							case "function":     CurrentRegion = Mate.Window.Region.Function;     goto Match;
-							case "event":        CurrentRegion = Mate.Window.Region.Event;        goto Match;
+							case "macro":            CurrentRegion = Mate.Window.Region.Macro;         goto Match;
+							case "namespace":        CurrentRegion = Mate.Window.Region.Namespace;     goto Match;
+							case "concept":          CurrentRegion = Mate.Window.Region.Concept;       goto Match;
+							case "class":            CurrentRegion = Mate.Window.Region.Class;         goto Match;
+							case "struct":           CurrentRegion = Mate.Window.Region.Struct;        goto Match;
+							case "union":            CurrentRegion = Mate.Window.Region.Union;         goto Match;
+							case "using":            CurrentRegion = Mate.Window.Region.Using;         goto Match;
+							case "friend":           CurrentRegion = Mate.Window.Region.Friend;        goto Match;
+							case "component":        CurrentRegion = Mate.Window.Region.Component;     goto Match;
+							case "member":           CurrentRegion = Mate.Window.Region.Member;        goto Match;
+							case "property":         CurrentRegion = Mate.Window.Region.Property;      goto Match;
+							case "field":            CurrentRegion = Mate.Window.Region.Field;         goto Match;
+							case "enum class":       CurrentRegion = Mate.Window.Region.Enum;          goto Match;
+							case "enum":             CurrentRegion = Mate.Window.Region.EnumUnscoped;  goto Match;
+							case "delegate":         CurrentRegion = Mate.Window.Region.Delegate;      goto Match;
+							case "setter":           CurrentRegion = Mate.Window.Region.Setter;        goto Match;
+							case "getter":           CurrentRegion = Mate.Window.Region.Getter;        goto Match;
+							case "override":         CurrentRegion = Mate.Window.Region.Override;      goto Match;
+							case "special":          CurrentRegion = Mate.Window.Region.Special;       goto Match;
+							case "constructor":      CurrentRegion = Mate.Window.Region.Constructor;   goto Match;
+							case "method":           CurrentRegion = Mate.Window.Region.Method;        goto Match;
+							case "operator":         CurrentRegion = Mate.Window.Region.Operator;      goto Match;
+							case "conversion":       CurrentRegion = Mate.Window.Region.Conversion;    goto Match;
+							case "function":         CurrentRegion = Mate.Window.Region.Function;      goto Match;
+							case "event":            CurrentRegion = Mate.Window.Region.Event;         goto Match;
 
 							default:
 
