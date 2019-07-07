@@ -734,6 +734,7 @@ namespace Mate
 					Source = Icon,
 				};
 
+				if (Region != Region.None)
 				Stack.Children.Add(IconBlock);
 
 			#endregion
@@ -776,9 +777,12 @@ namespace Mate
 				}
 
 			#endregion
+			#region Icon
 
-			// \todo perf: Rewrite.
-			// Mate.Window.Stack.Children.Insert insted of .Clear and foreach .Add.
+				if (Region == Region.None)
+				Stack.Children.Add(IconBlock);
+
+			#endregion
 
 			Entries.Add(LineNumber, Stack);
 			Mate.Window.Stack.Children.Clear();
@@ -1020,8 +1024,6 @@ namespace Mate
 		/// - Focus entry in `File structure` window by given $LineNumber.
 		internal static void ScrollToLine(int LineNumber)
 		{
-			ThreadHelper.ThrowIfNotOnUIThread();
-
 			#region Scroll
 
 				var EntryID = 0;
