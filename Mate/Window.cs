@@ -65,17 +65,16 @@ namespace Mate
 
 			Headers,
 			Meta,
-			Macro,
 			Namespace,
 
-			Concept,
-			Class,
-			Struct,
-			Union,
-
 			Usings,
+			Macros,
 			Friends,
 			Components,
+			Concepts,
+			Classes,
+			Structs,
+			Unions,
 			Members,
 			Properties,
 			Fields,
@@ -95,8 +94,13 @@ namespace Mate
 			Events,
 
 			Using,
+			Macro,
 			Friend,
 			Component,
+			Concept,
+			Class,
+			Struct,
+			Union,
 			Member,
 			Property,
 			Field,
@@ -242,14 +246,6 @@ namespace Mate
 
 					break;
 
-				case Region.Macro:
-
-					Name = Value;
-					NameColor = Color.FromRgb(176, 128, 224);
-					Icon = Utils.GetIconFromBase64(Icons.SquareFullPurple, Size);
-
-					break;
-
 				case Region.Namespace:
 
 					Name = Value;
@@ -258,43 +254,19 @@ namespace Mate
 
 					break;
 
-				case Region.Concept:
-
-					Name = Value;
-					NameColor = Color.FromRgb(176, 224, 128);
-					Icon = Utils.GetIconFromBase64(Icons.SquareFullGreen, Size);
-
-					break;
-
-				case Region.Class:
-
-					Name = Value;
-					NameColor = Color.FromRgb(176, 224, 128);
-					Icon = Utils.GetIconFromBase64(Icons.SquareDottedGreen, Size);
-
-					break;
-
-				case Region.Struct:
-
-					Name = Value;
-					NameColor = Color.FromRgb(176, 224, 128);
-					Icon = Utils.GetIconFromBase64(Icons.SquareDottedGreen, Size);
-
-					break;
-
-				case Region.Union:
-
-					Name = Value;
-					NameColor = Color.FromRgb(176, 224, 128);
-					Icon = Utils.GetIconFromBase64(Icons.SquareDottedGreen, Size);
-
-					break;
-
 				case Region.Usings:
 
 					Name = "Usings";
 					NameColor = Color.FromRgb(128, 128, 128);
 					Icon = Utils.GetIconFromBase64(Icons.SquareFullGray, Size);
+
+					break;
+
+				case Region.Macros:
+
+					Name = "Macros";
+					NameColor = Color.FromRgb(176, 128, 224);
+					Icon = Utils.GetIconFromBase64(Icons.SquareFullPurple, Size);
 
 					break;
 
@@ -311,6 +283,38 @@ namespace Mate
 					Name = "Components";
 					NameColor = Color.FromRgb(128, 224, 176);
 					Icon = Utils.GetIconFromBase64(Icons.SquareFullTurquoise, Size);
+
+					break;
+
+				case Region.Concepts:
+
+					Name = "Concepts";
+					NameColor = Color.FromRgb(176, 224, 128);
+					Icon = Utils.GetIconFromBase64(Icons.SquareFullGreen, Size);
+
+					break;
+
+				case Region.Classes:
+
+					Name = "Classes";
+					NameColor = Color.FromRgb(176, 224, 128);
+					Icon = Utils.GetIconFromBase64(Icons.SquareDottedGreen, Size);
+
+					break;
+
+				case Region.Structs:
+
+					Name = "Structs";
+					NameColor = Color.FromRgb(176, 224, 128);
+					Icon = Utils.GetIconFromBase64(Icons.SquareDottedGreen, Size);
+
+					break;
+
+				case Region.Unions:
+
+					Name = "Unions";
+					NameColor = Color.FromRgb(176, 224, 128);
+					Icon = Utils.GetIconFromBase64(Icons.SquareDottedGreen, Size);
 
 					break;
 
@@ -450,6 +454,14 @@ namespace Mate
 
 					break;
 
+				case Region.Macro:
+
+					Name = Value;
+					NameColor = Color.FromRgb(176, 128, 224);
+					Icon = Utils.GetIconFromBase64(Icons.SquareFullPurple, Size);
+
+					break;
+
 				case Region.Friend:
 
 					Name = Value;
@@ -463,6 +475,38 @@ namespace Mate
 					Name = Value;
 					NameColor = Color.FromRgb(128, 224, 176);
 					Icon = Utils.GetIconFromBase64(Icons.SquareFullTurquoise, Size);
+
+					break;
+
+				case Region.Concept:
+
+					Name = Value;
+					NameColor = Color.FromRgb(176, 224, 128);
+					Icon = Utils.GetIconFromBase64(Icons.SquareFullGreen, Size);
+
+					break;
+
+				case Region.Class:
+
+					Name = Value;
+					NameColor = Color.FromRgb(176, 224, 128);
+					Icon = Utils.GetIconFromBase64(Icons.SquareDottedGreen, Size);
+
+					break;
+
+				case Region.Struct:
+
+					Name = Value;
+					NameColor = Color.FromRgb(176, 224, 128);
+					Icon = Utils.GetIconFromBase64(Icons.SquareDottedGreen, Size);
+
+					break;
+
+				case Region.Union:
+
+					Name = Value;
+					NameColor = Color.FromRgb(176, 224, 128);
+					Icon = Utils.GetIconFromBase64(Icons.SquareDottedGreen, Size);
 
 					break;
 
@@ -842,8 +886,13 @@ namespace Mate
 							case "Headers":          CurrentRegion = Mate.Window.Region.Headers;       goto Return;
 							case "Meta":             CurrentRegion = Mate.Window.Region.Meta;          goto Return;
 							case "Usings":           CurrentRegion = Mate.Window.Region.Usings;        goto Return;
+							case "Macros":           CurrentRegion = Mate.Window.Region.Macros;        goto Return;
 							case "Friends":          CurrentRegion = Mate.Window.Region.Friends;       goto Return;
 							case "Components":       CurrentRegion = Mate.Window.Region.Components;    goto Return;
+							case "Concepts":         CurrentRegion = Mate.Window.Region.Concepts;      goto Return;
+							case "Classes":          CurrentRegion = Mate.Window.Region.Classes;       goto Return;
+							case "Structs":          CurrentRegion = Mate.Window.Region.Structs;       goto Return;
+							case "Unions":           CurrentRegion = Mate.Window.Region.Unions;        goto Return;
 							case "Members":          CurrentRegion = Mate.Window.Region.Members;       goto Return;
 							case "Properties":       CurrentRegion = Mate.Window.Region.Properties;    goto Return;
 							case "Fields":           CurrentRegion = Mate.Window.Region.Fields;        goto Return;
@@ -864,15 +913,15 @@ namespace Mate
 
 						switch (Region)
 						{
-							case "macro":            CurrentRegion = Mate.Window.Region.Macro;         goto Match;
 							case "namespace":        CurrentRegion = Mate.Window.Region.Namespace;     goto Match;
+							case "using":            CurrentRegion = Mate.Window.Region.Using;         goto Match;
+							case "macro":            CurrentRegion = Mate.Window.Region.Macro;         goto Match;
+							case "friend":           CurrentRegion = Mate.Window.Region.Friend;        goto Match;
+							case "component":        CurrentRegion = Mate.Window.Region.Component;     goto Match;
 							case "concept":          CurrentRegion = Mate.Window.Region.Concept;       goto Match;
 							case "class":            CurrentRegion = Mate.Window.Region.Class;         goto Match;
 							case "struct":           CurrentRegion = Mate.Window.Region.Struct;        goto Match;
 							case "union":            CurrentRegion = Mate.Window.Region.Union;         goto Match;
-							case "using":            CurrentRegion = Mate.Window.Region.Using;         goto Match;
-							case "friend":           CurrentRegion = Mate.Window.Region.Friend;        goto Match;
-							case "component":        CurrentRegion = Mate.Window.Region.Component;     goto Match;
 							case "member":           CurrentRegion = Mate.Window.Region.Member;        goto Match;
 							case "property":         CurrentRegion = Mate.Window.Region.Property;      goto Match;
 							case "field":            CurrentRegion = Mate.Window.Region.Field;         goto Match;
