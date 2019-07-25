@@ -131,7 +131,7 @@ namespace Mate
 
 			ThreadHelper.ThrowIfNotOnUIThread();
 			Meta.RemoveTrailingWhitespaces();
-			Meta.FixHeadingSpaces();
+			//Meta.FixHeadingSpaces();
 		}
 
 		internal static void OnAfterCaretPositionChange()
