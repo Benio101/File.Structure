@@ -826,11 +826,72 @@ namespace Mate
 			var bAccessLevelIndent = -1;
 
 			RemoveAllEntries();
-
 			while ((Line = Reader.ReadLine()) != null)
 			{
 				++LineNumber;
 				Match Match;
+
+				// access:
+				{
+					var IsSpecifier = false;
+
+					Match = Regex.Match(Line, "^[ \t\v\f]*(?<Access>(public|protected|private))[ \t\v\f]*:[ \t\v\f]*$");
+
+					if (Match.Length == 0)
+					{
+						Match = Regex.Match(Line, "^[ \t\v\f]*#pragma[ \t\v\f]+region[ \t\v\f]+(?<Access>([Pp]ublic|[Pp]rivate|[Pp]rotected))");
+					}
+					else
+					{
+						IsSpecifier = true;
+					}
+
+					if (Match.Length > 0)
+					{
+						var Access = Match.Groups["Access"].Value.ToLower();
+						var AIndentLevel = bAccessLevelIndent == -1 ? IndentLevel : IndentLevel - 1;
+						switch (Access)
+						{
+							case "public":
+
+								AddEntry(Region.Public, LineNumber, "", AIndentLevel);
+								goto Match;
+
+							case "protected":
+
+								AddEntry(Region.Protected, LineNumber, "", AIndentLevel);
+								goto Match;
+
+							case "private":
+
+								AddEntry(Region.Private, LineNumber, "", AIndentLevel);
+								goto Match;
+
+							default:
+
+								break;
+
+							Match:
+
+								if (IsSpecifier)
+								{
+									if (bAccessLevelIndent == -1)
+									{
+										bAccessLevelIndent = IndentLevel;
+										++IndentLevel;
+									}
+								}
+								else
+								{
+									++IndentLevel;
+								}
+
+								break;
+						}
+
+						continue;
+					}
+				}
 
 				// #pragma region
 				{
@@ -958,6 +1019,8 @@ namespace Mate
 
 							AddEntry(CurrentRegion, LineNumber, Value, IndentLevel);
 							++IndentLevel;
+
+						continue;
 					}
 				}
 
@@ -973,48 +1036,8 @@ namespace Mate
 							bAccessLevelIndent = -1;
 							--IndentLevel;
 						}
-					}
-				}
 
-				// access:
-				{
-					Match = Regex.Match(Line, "^[ \t\v\f]*(?<Access>(public|protected|private))[ \t\v\f]*:[ \t\v\f]*$");
-					if (Match.Length > 0)
-					{
-						var Access = Match.Groups["Access"].Value;
-						var AIndentLevel = bAccessLevelIndent == -1 ? IndentLevel : IndentLevel - 1;
-						switch (Access)
-						{
-							case "public":
-
-								AddEntry(Region.Public, LineNumber, "", AIndentLevel);
-								goto Match;
-
-							case "protected":
-
-								AddEntry(Region.Protected, LineNumber, "", AIndentLevel);
-								goto Match;
-
-							case "private":
-
-								AddEntry(Region.Private, LineNumber, "", AIndentLevel);
-
-								goto Match;
-
-							default:
-
-								break;
-
-							Match:
-
-								if (bAccessLevelIndent == -1)
-								{
-									bAccessLevelIndent = IndentLevel;
-									++IndentLevel;
-								}
-
-								break;
-						}
+						continue;
 					}
 				}
 			}
