@@ -1,11 +1,10 @@
-﻿using System;
-using System.ComponentModel.Composition;
-
-using Microsoft.VisualStudio.Shell;
+﻿using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Text;
 using Microsoft.VisualStudio.Text.Classification;
 using Microsoft.VisualStudio.Text.Editor;
 using Microsoft.VisualStudio.Utilities;
+using System;
+using System.ComponentModel.Composition;
 
 namespace Mate
 {
@@ -40,8 +39,7 @@ namespace Mate
 			Classifier = ClassifierAggregatorService.GetClassifier(this.TextView.TextBuffer);
 			this.TextView.Caret.PositionChanged += OnCaretPositionChanged;
 
-			ThreadHelper.ThrowIfNotOnUIThread();
-			Events.OnAfterTextViewCreate();
+			_ = Events.OnAfterTextViewCreateAsync();
 		}
 
 		private static void OnCaretPositionChanged
@@ -50,8 +48,7 @@ namespace Mate
 			CaretPositionChangedEventArgs Event
 		)
 		{
-			ThreadHelper.ThrowIfNotOnUIThread();
-			Events.OnAfterCaretPositionChange();
+			_ = Events.OnAfterCaretPositionChangeAsync();
 		}
 
 		private void OnTextBufferChanged

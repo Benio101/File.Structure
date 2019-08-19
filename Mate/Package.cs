@@ -1,8 +1,10 @@
-﻿using System;
-using System.Threading;
-
-using Microsoft.VisualStudio;
+﻿using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.Shell;
+using System;
+using System.Threading;
+using System.Threading.Tasks;
+using Microsoft.VisualStudio.Threading;
+using Task = System.Threading.Tasks.Task;
 
 namespace Mate
 {
@@ -30,8 +32,9 @@ namespace Mate
 		private static EnvDTE.Events         Events;
 		private static EnvDTE.DocumentEvents DocumentEvents;
 		private static EnvDTE.WindowEvents   WindowEvents;
+		private static EnvDTE.Window         LastWindowThatGotFocus;
 
-		protected override async System.Threading.Tasks.Task InitializeAsync
+		protected override async Task InitializeAsync
 		(
 			CancellationToken              Token,
 			IProgress<ServiceProgressData> Progress
@@ -49,25 +52,35 @@ namespace Mate
 				#endregion
 				#region EnvDTE.Events
 
-					var DTE = Utils.GetDTE();
+					var DTE = await Utils.GetDTEAsync();
 					Events = DTE.Events;
 
 					DocumentEvents = Events.DocumentEvents;
 					DocumentEvents.DocumentClosing += Document =>
 					{
-						ThreadHelper.ThrowIfNotOnUIThread();
-						if (Document.Language != "C/C++") return;
+						_ = Task.Run(async () =>
+						{
+							await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+							if (Document.Language != "C/C++") return;
+							await TaskScheduler.Default;
 
-						Mate.Events.OnBeforeDocumentClose();
+							await Mate.Events.OnBeforeDocumentCloseAsync();
+						}, Token);
 					};
 
 					WindowEvents = Events.WindowEvents;
 					WindowEvents.WindowActivated += (GotFocus, LostFocus) =>
 					{
-						ThreadHelper.ThrowIfNotOnUIThread();
-						if (GotFocus.Document.Language != "C/C++") return;
+						if (GotFocus == LastWindowThatGotFocus) return;
+						_ = Task.Run(async () =>
+						{
+							await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+							if (GotFocus.Document.Language != "C/C++") return;
+							await TaskScheduler.Default;
 
-						Mate.Events.OnAfterWindowActivate();
+							LastWindowThatGotFocus = GotFocus;
+							await Mate.Events.OnAfterWindowActivateAsync();
+						}, Token);
 					};
 
 				#endregion

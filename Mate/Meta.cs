@@ -1,17 +1,17 @@
-﻿using Microsoft.VisualStudio.Shell;
-
-using EnvDTE;
+﻿using EnvDTE;
+using Microsoft.VisualStudio.Shell;
+using Task = System.Threading.Tasks.Task;
 
 namespace Mate
 {
 	internal static class Meta
 	{
 		/// Remove trailing whitespaces from active document.
-		internal static void RemoveTrailingWhitespaces()
+		internal static async Task RemoveTrailingWhitespacesAsync()
 		{
-			ThreadHelper.ThrowIfNotOnUIThread();
+			await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
 
-			var TextDocument = Utils.GetTextDocument();
+			var TextDocument = await Utils.GetTextDocumentAsync();
 			if (TextDocument == null) return;
 
 			TextDocument.ReplacePattern
@@ -22,11 +22,11 @@ namespace Mate
 		}
 
 		/// Replace heading spaces with tabs (each pack of heading 4 spaces are replaced to a single tab character).
-		internal static void FixHeadingSpaces()
+		internal static async Task FixHeadingSpacesAsync()
 		{
-			ThreadHelper.ThrowIfNotOnUIThread();
+			await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
 
-			var TextDocument = Utils.GetTextDocument();
+			var TextDocument = await Utils.GetTextDocumentAsync();
 			if (TextDocument == null) return;
 
 			while (TextDocument.ReplacePattern

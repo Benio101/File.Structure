@@ -1,15 +1,16 @@
-﻿using System.Collections.Generic;
+﻿using EnvDTE;
+using Microsoft.VisualStudio.Imaging;
+using Microsoft.VisualStudio.Shell;
+using Microsoft.VisualStudio.Threading;
+using System.Collections.Generic;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
-
-using Microsoft.VisualStudio.Imaging;
-using Microsoft.VisualStudio.Shell;
-
-using EnvDTE;
+using Task = System.Threading.Tasks.Task;
 
 namespace Mate
 {
@@ -142,24 +143,35 @@ namespace Mate
 		}
 
 		/// Focus entry in `File structure` window by given $LineNumber.
-		private static void FocusEntry(int LineNumber)
+		private static async Task FocusEntryAsync(int LineNumber)
 		{
+			await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+			var Entries = Mate.Window.Entries;
+			await TaskScheduler.Default;
+
 			foreach (var EntryPair in Entries)
 			{
 				var EntryLineNumber  = EntryPair.Key;
 				var Entry            = EntryPair.Value;
-				var LineNumberBlock  = (TextBlock) Entry.Children[0];
 
+				await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+				var LineNumberBlock = Entry.Children[0] as TextBlock;
+				await TaskScheduler.Default;
+
+				if (LineNumberBlock == null) return;
 				if (EntryLineNumber == LineNumber)
 				{
+					await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
 					LineNumberBlock.Foreground = new SolidColorBrush(Color.FromRgb(224, 224, 224));
 					Entry.Background = new SolidColorBrush(Color.FromRgb(24, 24, 24));
+					await TaskScheduler.Default;
 				}
-
 				else
 				{
+					await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
 					LineNumberBlock.Foreground = new SolidColorBrush(Color.FromRgb(128, 128, 128));
 					Entry.Background = null;
+					await TaskScheduler.Default;
 				}
 			}
 		}
@@ -170,7 +182,7 @@ namespace Mate
 		/// \param  Value        Text Value to show in `File structure` window's entry (`""` for some types of regions).
 		/// \param  IndentLevel  Level of indentation (0 to 4) of entry (0 means no indentation, 4 means indent 4×).
 
-		private static void AddEntry
+		private static async Task AddEntryAsync
 		(
 			Region  Region,
 			int     LineNumber,
@@ -178,12 +190,16 @@ namespace Mate
 			int     IndentLevel = 0
 		)
 		{
+			await TaskScheduler.Default;
+
 			// Clamp $IndentLevel between 0 and 4.
 			if (IndentLevel < 0) IndentLevel = 0;
 			if (IndentLevel > 4) IndentLevel = 4;
 
 			if (Entries.ContainsKey(LineNumber))
-				RemoveEntry(LineNumber);
+				await RemoveEntryAsync(LineNumber);
+
+			await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
 
 			// Entry @Stack, horizontal.
 			var Stack = new StackPanel
@@ -194,28 +210,36 @@ namespace Mate
 				Orientation           = Orientation.Horizontal,
 			};
 
+			await TaskScheduler.Default;
+
 			// Entry click handler.
 			Stack.MouseLeftButtonDown += (sender, args) =>
 			{
 				// Set cursor in document window at the line corresponding to the line of `File structure` window's clicked entry.
 				// Focus clicked entry in `File structure` window.
 
-				ThreadHelper.ThrowIfNotOnUIThread();
+				_ = Task.Run(async () =>
+				{
+					await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
 
-				var DTE = Utils.GetDTE();
-				if (DTE == null) return;
+					var DTE = await Utils.GetDTEAsync();
+					if (DTE == null) return;
 
-				var ActiveDocument = DTE.ActiveDocument;
-				if (ActiveDocument == null) return;
+					var ActiveDocument = DTE.ActiveDocument;
+					if (ActiveDocument == null) return;
 
-				var Selection = (TextSelection) DTE.ActiveDocument.Selection;
-				if (Selection == null) return;
+					var Selection = DTE.ActiveDocument.Selection as TextSelection;
+					if (Selection == null) return;
 
-				var ActiveDocumentTextLines = Utils.GetText().Split('\n').Length;
-				if (ActiveDocumentTextLines < LineNumber) return;
+					await TaskScheduler.Default;
 
-				Selection.MoveToLineAndOffset(LineNumber, 1);
-				FocusEntry(LineNumber);
+					var ActiveDocumentText = await Utils.GetTextAsync();
+					var ActiveDocumentTextLines = ActiveDocumentText.Split('\n').Length;
+					if (ActiveDocumentTextLines < LineNumber) return;
+
+					Selection.MoveToLineAndOffset(LineNumber, 1);
+					await FocusEntryAsync(LineNumber);
+				});
 			};
 
 			// Entry's @Name: $Value to show in @NameBlock.
@@ -225,7 +249,7 @@ namespace Mate
 			var NameColor = Color.FromRgb(224, 224, 224);
 
 			// @Icon to show in @IconBlock.
-			ImageSource Icon = Utils.GetIconFromMoniker(KnownMonikers.Blank, Size);
+			ImageSource Icon = await Utils.GetIconFromMonikerAsync(KnownMonikers.Blank, Size);
 
 			// Set @Name, @NameColor, and @Icon, depending on $Region.
 			switch (Region)
@@ -663,6 +687,7 @@ namespace Mate
 					break;
 			}
 
+			await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
 			#region Line number
 
 				var LineNumberBlock = new TextBlock
@@ -687,25 +712,25 @@ namespace Mate
 				var IndentBlock0 = new Image
 				{
 					Margin = new Thickness(0, MarginSize, Size, MarginSize),
-					Source = Utils.GetIconFromMoniker(KnownMonikers.Blank, Size),
+					Source = await Utils.GetIconFromMonikerAsync(KnownMonikers.Blank, Size),
 				};
 
 				var IndentBlock1 = new Image
 				{
 					Margin = new Thickness(0, MarginSize, Size, MarginSize),
-					Source = Utils.GetIconFromMoniker(KnownMonikers.Blank, Size),
+					Source = await Utils.GetIconFromMonikerAsync(KnownMonikers.Blank, Size),
 				};
 
 				var IndentBlock2 = new Image
 				{
 					Margin = new Thickness(0, MarginSize, Size, MarginSize),
-					Source = Utils.GetIconFromMoniker(KnownMonikers.Blank, Size),
+					Source = await Utils.GetIconFromMonikerAsync(KnownMonikers.Blank, Size),
 				};
 
 				var IndentBlock3 = new Image
 				{
 					Margin = new Thickness(0, MarginSize, Size, MarginSize),
-					Source = Utils.GetIconFromMoniker(KnownMonikers.Blank, Size),
+					Source = await Utils.GetIconFromMonikerAsync(KnownMonikers.Blank, Size),
 				};
 
 				if (IndentLevel > 0)
@@ -784,7 +809,10 @@ namespace Mate
 
 			#endregion
 
+			await TaskScheduler.Default;
 			Entries.Add(LineNumber, Stack);
+
+			await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
 			Mate.Window.Stack.Children.Clear();
 			foreach (var Entry in Entries)
 			{
@@ -793,30 +821,37 @@ namespace Mate
 		}
 
 		/// Remove entry from `File structure` window at $LineNumber.
-		private static void RemoveEntry(int LineNumber)
+		private static async Task RemoveEntryAsync(int LineNumber)
 		{
+			await TaskScheduler.Default;
 			if (!Entries.ContainsKey(LineNumber))
 				return;
 
+			await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
 			Stack.Children.Remove(Entries[LineNumber]);
+
+			await TaskScheduler.Default;
 			Entries.Remove(LineNumber);
 		}
 
 		/// Remove all !Entries from `File structure` window.
-		internal static void RemoveAllEntries()
+		internal static async Task RemoveAllEntriesAsync()
 		{
+			await TaskScheduler.Default;
 			Entries.Clear();
+
+			await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
 			Stack.Children.Clear();
 		}
 
 		/// \short    Update content of `File structure` window.
 		/// \details  Read active document, regenerate entries and replace them with current ones.
 
-		internal static void Update()
+		internal static async Task UpdateAsync()
 		{
-			ThreadHelper.ThrowIfNotOnUIThread();
+			await TaskScheduler.Default;
 
-			var Text = Utils.GetText();
+			var Text = await Utils.GetTextAsync();
 			if (Text == null) return;
 
 			var Reader = new StringReader(Text);
@@ -825,8 +860,8 @@ namespace Mate
 			var IndentLevel = 0;
 			var bAccessLevelIndent = -1;
 
-			RemoveAllEntries();
-			while ((Line = Reader.ReadLine()) != null)
+			await RemoveAllEntriesAsync();
+			while ((Line = await Reader.ReadLineAsync()) != null)
 			{
 				++LineNumber;
 				Match Match;
@@ -854,17 +889,17 @@ namespace Mate
 						{
 							case "public":
 
-								AddEntry(Region.Public, LineNumber, "", AIndentLevel);
+								await AddEntryAsync(Region.Public, LineNumber, "", AIndentLevel);
 								goto Match;
 
 							case "protected":
 
-								AddEntry(Region.Protected, LineNumber, "", AIndentLevel);
+								await AddEntryAsync(Region.Protected, LineNumber, "", AIndentLevel);
 								goto Match;
 
 							case "private":
 
-								AddEntry(Region.Private, LineNumber, "", AIndentLevel);
+								await AddEntryAsync(Region.Private, LineNumber, "", AIndentLevel);
 								goto Match;
 
 							default:
@@ -1017,7 +1052,7 @@ namespace Mate
 
 						Return:
 
-							AddEntry(CurrentRegion, LineNumber, Value, IndentLevel);
+							await AddEntryAsync(CurrentRegion, LineNumber, Value, IndentLevel);
 							++IndentLevel;
 
 						continue;
@@ -1045,9 +1080,13 @@ namespace Mate
 
 		/// - Scroll `File structure` window to $LineNumber (or the nearest entry with line number smaller than $LineNumber).
 		/// - Focus entry in `File structure` window by given $LineNumber.
-		internal static void ScrollToLine(int LineNumber)
+		internal static async Task ScrollToLineAsync(int LineNumber)
 		{
 			#region Scroll
+
+				await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+				var Entries = Mate.Window.Entries;
+				await TaskScheduler.Default;
 
 				var EntryID = 0;
 				foreach (var Entry in Entries)
@@ -1063,7 +1102,9 @@ namespace Mate
 				var TargetEntryID = EntryID - EntriesOverFocus;
 				if (TargetEntryID < 0) TargetEntryID = 0;
 
+				await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
 				Scroll.ScrollToVerticalOffset(TargetEntryID * EntryHeight);
+				await TaskScheduler.Default;
 
 			#endregion
 			#region Focus
@@ -1071,19 +1112,26 @@ namespace Mate
 				var CurrentEntryID = 0;
 				foreach (var EntryPair in Entries)
 				{
-					var Entry     = EntryPair.Value;
-					var LineBlock = (TextBlock) Entry.Children[0];
+					var Entry = EntryPair.Value;
 
+					await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+					var LineNumberBlock = Entry.Children[0] as TextBlock;
+					await TaskScheduler.Default;
+
+					if (LineNumberBlock == null) return;
 					if (CurrentEntryID == EntryID)
 					{
-						LineBlock.Foreground = new SolidColorBrush(Color.FromRgb(224, 224, 224));
+						await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+						LineNumberBlock.Foreground = new SolidColorBrush(Color.FromRgb(224, 224, 224));
 						Entry.Background = new SolidColorBrush(Color.FromRgb(24, 24, 24));
+						await TaskScheduler.Default;
 					}
-
 					else
 					{
-						LineBlock.Foreground = new SolidColorBrush(Color.FromRgb(128, 128, 128));
+						await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+						LineNumberBlock.Foreground = new SolidColorBrush(Color.FromRgb(128, 128, 128));
 						Entry.Background = null;
+						await TaskScheduler.Default;
 					}
 
 					++CurrentEntryID;

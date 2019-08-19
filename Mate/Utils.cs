@@ -1,16 +1,15 @@
-﻿using System;
+﻿using EnvDTE;
+using Microsoft.VisualStudio.Imaging.Interop;
+using Microsoft.VisualStudio.Shell;
+using Microsoft.VisualStudio.Shell.Interop;
+using System;
 using System.Drawing;
 using System.IO;
 using System.Runtime.InteropServices;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Interop;
 using System.Windows.Media.Imaging;
-
-using Microsoft.VisualStudio.Imaging.Interop;
-using Microsoft.VisualStudio.Shell.Interop;
-using Microsoft.VisualStudio.Shell;
-
-using EnvDTE;
 
 namespace Mate
 {
@@ -21,62 +20,70 @@ namespace Mate
 		private static extern bool DeleteObject(IntPtr Object);
 
 		/// Get DTE of EnvDTE (GuID "04A72314-32E9-48E2-9B87-A63603454F3E").
-		internal static DTE GetDTE()
+		internal static async Task<DTE> GetDTEAsync()
 		{
-			ThreadHelper.ThrowIfNotOnUIThread();
-			return (DTE) Microsoft.VisualStudio.Shell.Package.GetGlobalService(typeof(DTE));
+			await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+			return Microsoft.VisualStudio.Shell.Package.GetGlobalService(typeof(DTE)) as DTE;
 		}
 
 		/// Get active document.
-		private static Document GetActiveDocument()
+		private static async Task<Document> GetActiveDocumentAsync()
 		{
-			ThreadHelper.ThrowIfNotOnUIThread();
-			return GetDTE()?.ActiveDocument;
+			await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+
+			var DTE = await GetDTEAsync();
+			if (DTE == null) return null;
+
+			return DTE.ActiveDocument;
 		}
 
 		/// Get active document as `TextDocument`.
-		internal static TextDocument GetTextDocument()
+		internal static async Task<TextDocument> GetTextDocumentAsync()
 		{
-			ThreadHelper.ThrowIfNotOnUIThread();
-			return GetActiveDocument()?.Object() as TextDocument;
+			await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+
+			var Document = await GetActiveDocumentAsync();
+			if (Document == null) return null;
+
+			return Document.Object() as TextDocument;
 		}
 
 		/// Get text of current active document.
-		internal static string GetText()
+		internal static async Task<string> GetTextAsync()
 		{
-			ThreadHelper.ThrowIfNotOnUIThread();
+			await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
 
-			var TextDocument = GetTextDocument();
-			var Text = TextDocument?.StartPoint.CreateEditPoint().GetText(TextDocument.EndPoint);
+			var TextDocument = await GetTextDocumentAsync();
+			if (TextDocument == null) return null;
 
+			var Text = TextDocument.StartPoint.CreateEditPoint().GetText(TextDocument.EndPoint);
 			return Text;
 		}
 
 		/// \short Get current line (where cursor is placed) of active document.
 		/// \spare `1`.
-		internal static int GetCurrentLine()
+
+		internal static async Task<int> GetCurrentLineAsync()
 		{
-			ThreadHelper.ThrowIfNotOnUIThread();
+			await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
 
-			var DTE = GetDTE();
-			if (DTE == null) return -1;
+			var ActiveDocument = await GetActiveDocumentAsync();
+			if (ActiveDocument == null) goto spare;
 
-			var ActiveDocument = DTE.ActiveDocument;
-			if (ActiveDocument == null) return -1;
-
-			var Selection = (TextSelection) DTE.ActiveDocument.Selection;
-			if (Selection == null) return 1;
+			var Selection = ActiveDocument.Selection as TextSelection;
+			if (Selection == null) goto spare;
 
 			return Selection.CurrentLine;
+			spare: return -1;
 		}
 
 		/// \short           Get icon as `BitmapSource` from `ImageMoniker`.
 		/// \param  Moniker  Moniker name of icon to get.
 		/// \param  Size     Size of icon to get (render).
 
-		internal static BitmapSource GetIconFromMoniker(ImageMoniker Moniker, int Size)
+		internal static async Task<BitmapSource> GetIconFromMonikerAsync(ImageMoniker Moniker, int Size)
 		{
-			ThreadHelper.ThrowIfNotOnUIThread();
+			await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
 
 			var Attributes = new ImageAttributes
 			{
@@ -88,7 +95,9 @@ namespace Mate
 				StructSize    = Marshal.SizeOf(typeof(ImageAttributes))
 			};
 
-			var Service = (IVsImageService2) Microsoft.VisualStudio.Shell.Package.GetGlobalService(typeof(SVsImageService));
+			var Service = Microsoft.VisualStudio.Shell.Package.GetGlobalService(typeof(SVsImageService)) as IVsImageService2;
+			if (Service == null) return null;
+
 			var Result = Service.GetImage(Moniker, Attributes);
 			Result.get_Data(out var Data);
 

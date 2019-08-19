@@ -1,14 +1,14 @@
 ﻿using System.Threading.Tasks;
-
 using Microsoft.VisualStudio;
-using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
+using Microsoft.VisualStudio.Threading;
+using Task = System.Threading.Tasks.Task;
 
 namespace Mate
 {
 	#region RunningDocumentTable
 
-		internal class RunningDocTableEvents
+	internal class RunningDocTableEvents
 		:
 			IVsRunningDocTableEvents3
 		{
@@ -83,20 +83,16 @@ namespace Mate
 				IVsWindowFrame Frame
 			)
 			{
-				if (FirstShow == 0) return VSConstants.S_OK;
-				ThreadHelper.ThrowIfNotOnUIThread();
+				if (FirstShow == 0)
+					return VSConstants.S_OK;
 
-				Events.OnBeforeWindowCreate();
-
+				_ = Events.OnBeforeWindowCreateAsync();
 				return VSConstants.S_OK;
 			}
 
 			public int OnBeforeSave(uint Cookie)
 			{
-				ThreadHelper.ThrowIfNotOnUIThread();
-
-				Events.OnBeforeSave();
-
+				_ = Events.OnBeforeSaveAsync();
 				return VSConstants.S_OK;
 			}
 		}
@@ -105,40 +101,43 @@ namespace Mate
 
 	internal static class Events
 	{
-		internal static void OnBeforeWindowCreate()
+		internal static async Task OnBeforeWindowCreateAsync()
 		{
-			Parallel.Invoke(Window.Update);
+			await TaskScheduler.Default;
+			await Window.UpdateAsync();
 		}
 
-		internal static void OnAfterTextViewCreate()
+		internal static async Task OnAfterTextViewCreateAsync()
 		{
-			Parallel.Invoke(Window.Update);
+			await TaskScheduler.Default;
+			await Window.UpdateAsync();
 		}
 
-		internal static void OnAfterWindowActivate()
+		internal static async Task OnAfterWindowActivateAsync()
 		{
-			Parallel.Invoke(Window.Update);
+			await TaskScheduler.Default;
+			await Window.UpdateAsync();
 		}
 
-		internal static void OnBeforeDocumentClose()
+		internal static async Task OnBeforeDocumentCloseAsync()
 		{
-			Parallel.Invoke(Window.RemoveAllEntries);
+			await TaskScheduler.Default;
+			await Window.RemoveAllEntriesAsync();
 		}
 
-		internal static void OnBeforeSave()
+		internal static async Task OnBeforeSaveAsync()
 		{
-			Parallel.Invoke(Window.Update);
-
-			ThreadHelper.ThrowIfNotOnUIThread();
-			Meta.RemoveTrailingWhitespaces();
-			//Meta.FixHeadingSpaces();
+			await TaskScheduler.Default;
+			await Window.UpdateAsync();
+			await Meta.RemoveTrailingWhitespacesAsync();
+			//await Meta.FixHeadingSpacesAsync();
 		}
 
-		internal static void OnAfterCaretPositionChange()
+		internal static async Task OnAfterCaretPositionChangeAsync()
 		{
-			ThreadHelper.ThrowIfNotOnUIThread();
-			var CurrentLine = Utils.GetCurrentLine();
-			Parallel.Invoke(() => Window.ScrollToLine(CurrentLine));
+			await TaskScheduler.Default;
+			var CurrentLine = await Utils.GetCurrentLineAsync();
+			await Window.ScrollToLineAsync(CurrentLine);
 		}
 	}
 }

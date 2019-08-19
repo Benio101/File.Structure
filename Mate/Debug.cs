@@ -1,7 +1,7 @@
-﻿using System;
-
-using Microsoft.VisualStudio.Shell;
+﻿using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
+using System;
+using Task = System.Threading.Tasks.Task;
 
 namespace Mate
 {
@@ -14,7 +14,9 @@ namespace Mate
 		static Debug()
 		{
 			ThreadHelper.ThrowIfNotOnUIThread();
-			if (!(Microsoft.VisualStudio.Shell.Package.GetGlobalService(typeof(SVsOutputWindow)) is IVsOutputWindow Window)) return;
+
+			var Window = Microsoft.VisualStudio.Shell.Package.GetGlobalService(typeof(SVsOutputWindow)) as IVsOutputWindow;
+			if (Window == null) return;
 
 			#region Mate.Debug
 
@@ -33,8 +35,18 @@ namespace Mate
 		internal static void Print(string Message)
 		{
 			ThreadHelper.ThrowIfNotOnUIThread();
+
 			Pane.OutputString(Message + "\n");
 			Pane.Activate();
+		}
+
+		/// \short           Print $Message in `Mate.Debug` output window.
+		/// \param  Message  Message to print.
+
+		internal static async Task PrintAsync(string Message)
+		{
+			await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+			Print(Message);
 		}
 	}
 }
