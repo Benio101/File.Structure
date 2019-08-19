@@ -1,8 +1,10 @@
 ﻿using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.Shell;
 using System;
+using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.VisualStudio.Shell.Interop;
 using Microsoft.VisualStudio.Threading;
 using Task = System.Threading.Tasks.Task;
 
@@ -22,7 +24,12 @@ namespace Mate
 		(
 			VSConstants.UICONTEXT.ShellInitialized_string,
 			PackageAutoLoadFlags.BackgroundLoad
-		)
+		),
+
+		ProvideToolWindow(typeof(Window)),
+		ProvideMenuResource("Menus.ctmenu", 1),
+		InstalledProductRegistration("#110", "#112", "1.0", IconResourceID = 400),
+		Guid("2e11dc29-f231-4423-a329-5485cdb144bd")
 	]
 
 	internal sealed class Package
@@ -84,7 +91,24 @@ namespace Mate
 					};
 
 				#endregion
+
+				await WindowCommand.InitializeAsync(this);
+
 			#endregion
+		}
+
+		public override IVsAsyncToolWindowFactory GetAsyncToolWindowFactory(Guid ToolWindowType)
+		{
+			ThreadHelper.ThrowIfNotOnUIThread();
+
+			if (ToolWindowType == typeof(Window).GUID) return this;
+			return base.GetAsyncToolWindowFactory(ToolWindowType);
+		}
+
+		protected override string GetToolWindowTitle(Type toolWindowType, int id)
+		{
+			if (toolWindowType == typeof(Window)) return "Loading…";
+			return base.GetToolWindowTitle(toolWindowType, id);
 		}
 	}
 }

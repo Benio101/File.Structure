@@ -1,101 +1,49 @@
-﻿using System;
-using System.ComponentModel.Design;
-using System.Globalization;
-using System.Threading;
-using System.Threading.Tasks;
-using Microsoft.VisualStudio.Shell;
+﻿using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
+using System;
+using System.ComponentModel.Design;
 using Task = System.Threading.Tasks.Task;
 
 namespace Mate
 {
-	/// <summary>
-	/// Command handler
-	/// </summary>
 	internal sealed class WindowCommand
 	{
-		/// <summary>
-		/// Command ID.
-		/// </summary>
-		public const int CommandId = 0x0100;
+		private const int CommandID = 0x0100;
+		private static readonly Guid CommandSet = new Guid("ae2a58d7-9545-4fb7-aa43-db0d8c3a4cb8");
+		private readonly AsyncPackage Package;
 
-		/// <summary>
-		/// Command menu group (command set GUID).
-		/// </summary>
-		public static readonly Guid CommandSet = new Guid("ae2a58d7-9545-4fb7-aa43-db0d8c3a4cb8");
-
-		/// <summary>
-		/// VS Package that provides this command, not null.
-		/// </summary>
-		private readonly AsyncPackage package;
-
-		/// <summary>
-		/// Initializes a new instance of the <see cref="WindowCommand"/> class.
-		/// Adds our command handlers for menu (commands must exist in the command table file)
-		/// </summary>
-		/// <param name="package">Owner package, not null.</param>
-		/// <param name="commandService">Command service to add command to, not null.</param>
-		private WindowCommand(AsyncPackage package, OleMenuCommandService commandService)
+		private WindowCommand(AsyncPackage Package, IMenuCommandService CommandService)
 		{
-			this.package = package ?? throw new ArgumentNullException(nameof(package));
-			commandService = commandService ?? throw new ArgumentNullException(nameof(commandService));
+			if (Package        == null) return;
+			if (CommandService == null) return;
 
-			var menuCommandID = new CommandID(CommandSet, CommandId);
-			var menuItem = new MenuCommand(this.Execute, menuCommandID);
-			commandService.AddCommand(menuItem);
+			this.Package = Package;
+
+			var MenuCommandID = new CommandID(CommandSet, CommandID);
+			var MenuItem      = new MenuCommand(Execute, MenuCommandID);
+
+			CommandService.AddCommand(MenuItem);
 		}
 
-		/// <summary>
-		/// Gets the instance of the command.
-		/// </summary>
-		public static WindowCommand Instance
+		public static async Task InitializeAsync(AsyncPackage Package)
 		{
-			get;
-			private set;
+			await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync(Package.DisposalToken);
+			var CommandService = await Package.GetServiceAsync((typeof(IMenuCommandService))) as OleMenuCommandService;
+			// ReSharper disable once AssignmentIsFullyDiscarded
+			_ = new WindowCommand(Package, CommandService);
 		}
 
-		/// <summary>
-		/// Gets the service provider from the owner package.
-		/// </summary>
-		private Microsoft.VisualStudio.Shell.IAsyncServiceProvider ServiceProvider
+		private void Execute(object Sender, EventArgs Event)
 		{
-			get
+			Package.JoinableTaskFactory.RunAsync(async () =>
 			{
-				return this.package;
-			}
-		}
+				var Window = await Package.ShowToolWindowAsync(typeof(Window), 0, true, Package.DisposalToken);
+				if (Window == null) return;
 
-		/// <summary>
-		/// Initializes the singleton instance of the command.
-		/// </summary>
-		/// <param name="package">Owner package, not null.</param>
-		public static async Task InitializeAsync(AsyncPackage package)
-		{
-			// Switch to the main thread - the call to AddCommand in WindowCommand's constructor requires
-			// the UI thread.
-			await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync(package.DisposalToken);
+				await Package.JoinableTaskFactory.SwitchToMainThreadAsync();
+				if (!(Window.Frame is IVsWindowFrame WndowFrame)) return;
 
-			OleMenuCommandService commandService = await package.GetServiceAsync((typeof(IMenuCommandService))) as OleMenuCommandService;
-			Instance = new WindowCommand(package, commandService);
-		}
-
-		/// <summary>
-		/// Shows the tool window when the menu item is clicked.
-		/// </summary>
-		/// <param name="sender">The event sender.</param>
-		/// <param name="e">The event args.</param>
-		private void Execute(object sender, EventArgs e)
-		{
-			this.package.JoinableTaskFactory.RunAsync(async delegate
-			{
-				ToolWindowPane window = await this.package.ShowToolWindowAsync(typeof(Window), 0, true, this.package.DisposalToken);
-				if ((null == window) || (null == window.Frame)) {
-					throw new NotSupportedException("Cannot create tool window");
-				}
-
-				await this.package.JoinableTaskFactory.SwitchToMainThreadAsync();
-				IVsWindowFrame windowFrame = (IVsWindowFrame)window.Frame;
-				Microsoft.VisualStudio.ErrorHandler.ThrowOnFailure(windowFrame.Show());
+				WndowFrame.Show();
 			});
 		}
 	}

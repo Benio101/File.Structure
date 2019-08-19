@@ -14,9 +14,7 @@ namespace Mate
 		static Debug()
 		{
 			ThreadHelper.ThrowIfNotOnUIThread();
-
-			var Window = Microsoft.VisualStudio.Shell.Package.GetGlobalService(typeof(SVsOutputWindow)) as IVsOutputWindow;
-			if (Window == null) return;
+			if (!(Microsoft.VisualStudio.Shell.Package.GetGlobalService(typeof(SVsOutputWindow)) is IVsOutputWindow Window)) return;
 
 			#region Mate.Debug
 

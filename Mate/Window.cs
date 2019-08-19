@@ -142,6 +142,15 @@ namespace Mate
 			Content                              = Scroll;
 		}
 
+		#pragma warning disable IDE0060
+
+		public Window(string Message)
+		:
+			this()
+		{}
+
+		#pragma warning restore IDE0060
+
 		/// Focus entry in `File structure` window by given $LineNumber.
 		private static async Task FocusEntryAsync(int LineNumber)
 		{
@@ -155,10 +164,9 @@ namespace Mate
 				var Entry            = EntryPair.Value;
 
 				await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
-				var LineNumberBlock = Entry.Children[0] as TextBlock;
+				if (!(Entry.Children[0] is TextBlock LineNumberBlock)) return;
 				await TaskScheduler.Default;
 
-				if (LineNumberBlock == null) return;
 				if (EntryLineNumber == LineNumber)
 				{
 					await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
@@ -1071,11 +1079,11 @@ namespace Mate
 							bAccessLevelIndent = -1;
 							--IndentLevel;
 						}
-
-						continue;
 					}
 				}
 			}
+
+			Reader.Dispose();
 		}
 
 		/// - Scroll `File structure` window to $LineNumber (or the nearest entry with line number smaller than $LineNumber).
@@ -1115,10 +1123,9 @@ namespace Mate
 					var Entry = EntryPair.Value;
 
 					await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
-					var LineNumberBlock = Entry.Children[0] as TextBlock;
+					if (!(Entry.Children[0] is TextBlock LineNumberBlock)) return;
 					await TaskScheduler.Default;
 
-					if (LineNumberBlock == null) return;
 					if (CurrentEntryID == EntryID)
 					{
 						await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();

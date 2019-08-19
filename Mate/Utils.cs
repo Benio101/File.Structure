@@ -95,8 +95,7 @@ namespace Mate
 				StructSize    = Marshal.SizeOf(typeof(ImageAttributes))
 			};
 
-			var Service = Microsoft.VisualStudio.Shell.Package.GetGlobalService(typeof(SVsImageService)) as IVsImageService2;
-			if (Service == null) return null;
+			if (!(Microsoft.VisualStudio.Shell.Package.GetGlobalService(typeof(SVsImageService)) is IVsImageService2 Service)) return null;
 
 			var Result = Service.GetImage(Moniker, Attributes);
 			Result.get_Data(out var Data);
@@ -130,6 +129,7 @@ namespace Mate
 
 			BitmapSource.Freeze();
 			DeleteObject(BitmapPointer);
+			Bitmap.Dispose();
 
 			return BitmapSource;
 		}

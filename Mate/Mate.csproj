@@ -67,10 +67,6 @@
     <Compile Include="Utils.cs" />
     <Compile Include="Window.cs" />
     <Compile Include="WindowCommand.cs" />
-    <Compile Include="WindowControl.xaml.cs">
-      <DependentUpon>WindowControl.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="WindowPackage.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="source.extension.vsixmanifest">
@@ -90,6 +86,7 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
+    <Content Include="Resources\Code.ico" />
     <Content Include="Resources\WindowCommand.png" />
     <Content Include="Resources\WindowPackage.ico" />
     <VSCTCompile Include="WindowPackage.vsct">
@@ -148,12 +145,6 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup />
-  <ItemGroup>
-    <Page Include="WindowControl.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-  </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="VSPackage.resx">
       <MergeWithCTO>true</MergeWithCTO>
