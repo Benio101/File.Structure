@@ -1084,6 +1084,9 @@ namespace Mate
 			}
 
 			Reader.Dispose();
+
+			var CurrentLine = await Utils.GetCurrentLineAsync();
+			await Mate.Window.ScrollToLineAsync(CurrentLine);
 		}
 
 		/// - Scroll `File structure` window to $LineNumber (or the nearest entry with line number smaller than $LineNumber).

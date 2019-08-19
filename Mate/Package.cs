@@ -69,8 +69,8 @@ namespace Mate
 						{
 							await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
 							if (Document.Language != "C/C++") return;
-							await TaskScheduler.Default;
 
+							await TaskScheduler.Default;
 							await Mate.Events.OnBeforeDocumentCloseAsync();
 						}, Token);
 					};
@@ -83,8 +83,8 @@ namespace Mate
 						{
 							await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
 							if (GotFocus.Document.Language != "C/C++") return;
-							await TaskScheduler.Default;
 
+							await TaskScheduler.Default;
 							LastWindowThatGotFocus = GotFocus;
 							await Mate.Events.OnAfterWindowActivateAsync();
 						}, Token);
