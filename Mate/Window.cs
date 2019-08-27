@@ -11,6 +11,8 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using Task = System.Threading.Tasks.Task;
+using System.Threading;
+using System;
 
 namespace Mate
 {
@@ -32,6 +34,10 @@ namespace Mate
 
 		/// Content of !Scroll of `File structure` window. Contains !Entries.
 		private static readonly StackPanel Stack = new StackPanel();
+
+		/// Update ID: meta multithreading tracker.
+		/// Increasing or resetting this number prevents continuing previous, still ongoing file structure update.
+		private static volatile int UpdateID;
 
 		/// \short
 		/// List of entries from `File structure` window.
@@ -152,11 +158,19 @@ namespace Mate
 		#pragma warning restore IDE0060
 
 		/// Focus entry in `File structure` window by given $LineNumber.
-		private static async Task FocusEntryAsync(int LineNumber)
+		private static async Task FocusEntryAsync
+		(
+			int LineNumber,
+			int UpdateID   = 0
+		)
 		{
+			if (Mate.Window.UpdateID != UpdateID) return;
 			await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+
 			var Entries = Mate.Window.Entries;
+
 			await TaskScheduler.Default;
+			if (Mate.Window.UpdateID != UpdateID) return;
 
 			foreach (var EntryPair in Entries)
 			{
@@ -164,12 +178,18 @@ namespace Mate
 				var Entry            = EntryPair.Value;
 
 				await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+				if (Mate.Window.UpdateID != UpdateID) return;
+
 				if (!(Entry.Children[0] is TextBlock LineNumberBlock)) return;
+
 				await TaskScheduler.Default;
+				if (Mate.Window.UpdateID != UpdateID) return;
 
 				if (EntryLineNumber == LineNumber)
 				{
 					await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+					if (Mate.Window.UpdateID != UpdateID) return;
+
 					LineNumberBlock.Foreground = new SolidColorBrush(Color.FromRgb(224, 224, 224));
 					Entry.Background = new SolidColorBrush(Color.FromRgb(24, 24, 24));
 					await TaskScheduler.Default;
@@ -177,10 +197,14 @@ namespace Mate
 				else
 				{
 					await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+					if (Mate.Window.UpdateID != UpdateID) return;
+
 					LineNumberBlock.Foreground = new SolidColorBrush(Color.FromRgb(128, 128, 128));
 					Entry.Background = null;
 					await TaskScheduler.Default;
 				}
+
+				if (Mate.Window.UpdateID != UpdateID) return;
 			}
 		}
 
@@ -195,19 +219,24 @@ namespace Mate
 			Region  Region,
 			int     LineNumber,
 			string  Value,
-			int     IndentLevel = 0
+			int     IndentLevel = 0,
+			int     UpdateID    = 0
 		)
 		{
+			if (Mate.Window.UpdateID != UpdateID) return;
+
 			await TaskScheduler.Default;
+			if (Mate.Window.UpdateID != UpdateID) return;
 
 			// Clamp $IndentLevel between 0 and 4.
 			if (IndentLevel < 0) IndentLevel = 0;
 			if (IndentLevel > 4) IndentLevel = 4;
 
 			if (Entries.ContainsKey(LineNumber))
-				await RemoveEntryAsync(LineNumber);
+				await RemoveEntryAsync(LineNumber, UpdateID);
 
 			await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+			if (Mate.Window.UpdateID != UpdateID) return;
 
 			// Entry @Stack, horizontal.
 			var Stack = new StackPanel
@@ -219,6 +248,7 @@ namespace Mate
 			};
 
 			await TaskScheduler.Default;
+			if (Mate.Window.UpdateID != UpdateID) return;
 
 			// Entry click handler.
 			Stack.MouseLeftButtonDown += (sender, args) =>
@@ -246,7 +276,7 @@ namespace Mate
 					if (ActiveDocumentTextLines < LineNumber) return;
 
 					Selection.MoveToLineAndOffset(LineNumber, 1);
-					await FocusEntryAsync(LineNumber);
+					await FocusEntryAsync(LineNumber, UpdateID);
 				});
 			};
 
@@ -696,6 +726,8 @@ namespace Mate
 			}
 
 			await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+			if (Mate.Window.UpdateID != UpdateID) return;
+
 			#region Line number
 
 				var LineNumberBlock = new TextBlock
@@ -818,9 +850,13 @@ namespace Mate
 			#endregion
 
 			await TaskScheduler.Default;
+			if (Mate.Window.UpdateID != UpdateID) return;
+
 			Entries.Add(LineNumber, Stack);
 
 			await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+			if (Mate.Window.UpdateID != UpdateID) return;
+
 			Mate.Window.Stack.Children.Clear();
 			foreach (var Entry in Entries)
 			{
@@ -829,27 +865,52 @@ namespace Mate
 		}
 
 		/// Remove entry from `File structure` window at $LineNumber.
-		private static async Task RemoveEntryAsync(int LineNumber)
+		private static async Task RemoveEntryAsync
+		(
+			int LineNumber,
+			int UpdateID   = 0
+		)
 		{
+			if (Mate.Window.UpdateID != UpdateID) return;
+
 			await TaskScheduler.Default;
+			if (Mate.Window.UpdateID != UpdateID) return;
+
 			if (!Entries.ContainsKey(LineNumber))
 				return;
 
 			await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+			if (Mate.Window.UpdateID != UpdateID) return;
+
 			Stack.Children.Remove(Entries[LineNumber]);
 
 			await TaskScheduler.Default;
+			if (Mate.Window.UpdateID != UpdateID) return;
+
 			Entries.Remove(LineNumber);
 		}
 
 		/// Remove all !Entries from `File structure` window.
-		internal static async Task RemoveAllEntriesAsync()
+		private static async Task RemoveAllEntriesAsync(int UpdateID = 0)
 		{
+			if (Mate.Window.UpdateID != UpdateID) return;
+
 			await TaskScheduler.Default;
+			if (Mate.Window.UpdateID != UpdateID) return;
+
 			Entries.Clear();
 
 			await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+			if (Mate.Window.UpdateID != UpdateID) return;
+
 			Stack.Children.Clear();
+		}
+
+		/// Remove all !Entries from `File structure` window.
+		internal static async Task ClearAsync()
+		{
+			UpdateID = 0;
+			await RemoveAllEntriesAsync();
 		}
 
 		/// \short    Update content of `File structure` window.
@@ -858,17 +919,23 @@ namespace Mate
 		internal static async Task UpdateAsync()
 		{
 			await TaskScheduler.Default;
+			var UpdateID = ++Mate.Window.UpdateID;
 
 			var Text = await Utils.GetTextAsync();
 			if (Text == null) return;
 
+			#pragma warning disable IDE0068
 			var Reader = new StringReader(Text);
+			#pragma warning restore IDE0068
+
 			var LineNumber = 0;
 			string Line;
 			var IndentLevel = 0;
 			var bAccessLevelIndent = -1;
 
-			await RemoveAllEntriesAsync();
+			if (Mate.Window.UpdateID != UpdateID) return;
+			await RemoveAllEntriesAsync(UpdateID);
+
 			while ((Line = await Reader.ReadLineAsync()) != null)
 			{
 				++LineNumber;
@@ -897,17 +964,20 @@ namespace Mate
 						{
 							case "public":
 
-								await AddEntryAsync(Region.Public, LineNumber, "", AIndentLevel);
+								if (Mate.Window.UpdateID != UpdateID) {Reader.Dispose(); return;}
+								await AddEntryAsync(Region.Public, LineNumber, "", AIndentLevel, UpdateID);
 								goto Match;
 
 							case "protected":
 
-								await AddEntryAsync(Region.Protected, LineNumber, "", AIndentLevel);
+								if (Mate.Window.UpdateID != UpdateID) {Reader.Dispose(); return;}
+								await AddEntryAsync(Region.Protected, LineNumber, "", AIndentLevel, UpdateID);
 								goto Match;
 
 							case "private":
 
-								await AddEntryAsync(Region.Private, LineNumber, "", AIndentLevel);
+								if (Mate.Window.UpdateID != UpdateID) {Reader.Dispose(); return;}
+								await AddEntryAsync(Region.Private, LineNumber, "", AIndentLevel, UpdateID);
 								goto Match;
 
 							default:
@@ -1060,7 +1130,8 @@ namespace Mate
 
 						Return:
 
-							await AddEntryAsync(CurrentRegion, LineNumber, Value, IndentLevel);
+							if (Mate.Window.UpdateID != UpdateID) {Reader.Dispose(); return;}
+							await AddEntryAsync(CurrentRegion, LineNumber, Value, IndentLevel, UpdateID);
 							++IndentLevel;
 
 						continue;
@@ -1085,19 +1156,32 @@ namespace Mate
 
 			Reader.Dispose();
 
+			if (Mate.Window.UpdateID != UpdateID) return;
 			var CurrentLine = await Utils.GetCurrentLineAsync();
-			await Mate.Window.ScrollToLineAsync(CurrentLine);
+			// ReSharper disable once ArrangeStaticMemberQualifier
+			if (Mate.Window.UpdateID != UpdateID) return;
+			await ScrollToLineAsync(CurrentLine, UpdateID);
 		}
 
 		/// - Scroll `File structure` window to $LineNumber (or the nearest entry with line number smaller than $LineNumber).
 		/// - Focus entry in `File structure` window by given $LineNumber.
-		internal static async Task ScrollToLineAsync(int LineNumber)
+		internal static async Task ScrollToLineAsync
+		(
+			int LineNumber,
+			int UpdateID   = 0
+		)
 		{
+			if (Mate.Window.UpdateID != UpdateID) return;
+
 			#region Scroll
 
 				await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+				if (Mate.Window.UpdateID != UpdateID) return;
+
 				var Entries = Mate.Window.Entries;
+
 				await TaskScheduler.Default;
+				if (Mate.Window.UpdateID != UpdateID) return;
 
 				var EntryID = 0;
 				foreach (var Entry in Entries)
@@ -1114,8 +1198,12 @@ namespace Mate
 				if (TargetEntryID < 0) TargetEntryID = 0;
 
 				await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+				if (Mate.Window.UpdateID != UpdateID) return;
+
 				Scroll.ScrollToVerticalOffset(TargetEntryID * EntryHeight);
+
 				await TaskScheduler.Default;
+				if (Mate.Window.UpdateID != UpdateID) return;
 
 			#endregion
 			#region Focus
@@ -1126,12 +1214,18 @@ namespace Mate
 					var Entry = EntryPair.Value;
 
 					await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+					if (Mate.Window.UpdateID != UpdateID) return;
+
 					if (!(Entry.Children[0] is TextBlock LineNumberBlock)) return;
+
 					await TaskScheduler.Default;
+					if (Mate.Window.UpdateID != UpdateID) return;
 
 					if (CurrentEntryID == EntryID)
 					{
 						await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+						if (Mate.Window.UpdateID != UpdateID) return;
+
 						LineNumberBlock.Foreground = new SolidColorBrush(Color.FromRgb(224, 224, 224));
 						Entry.Background = new SolidColorBrush(Color.FromRgb(24, 24, 24));
 						await TaskScheduler.Default;
@@ -1139,11 +1233,14 @@ namespace Mate
 					else
 					{
 						await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+						if (Mate.Window.UpdateID != UpdateID) return;
+
 						LineNumberBlock.Foreground = new SolidColorBrush(Color.FromRgb(128, 128, 128));
 						Entry.Background = null;
 						await TaskScheduler.Default;
 					}
 
+					if (Mate.Window.UpdateID != UpdateID) return;
 					++CurrentEntryID;
 				}
 

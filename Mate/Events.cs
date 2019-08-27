@@ -121,8 +121,7 @@ namespace Mate
 
 		internal static async Task OnBeforeDocumentCloseAsync()
 		{
-			await TaskScheduler.Default;
-			await Window.RemoveAllEntriesAsync();
+			await Window.ClearAsync();
 		}
 
 		internal static async Task OnBeforeSaveAsync()
