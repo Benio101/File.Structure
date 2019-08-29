@@ -6,7 +6,7 @@ using Microsoft.VisualStudio.Utilities;
 using System;
 using System.ComponentModel.Composition;
 
-namespace Mate
+namespace File.Structure
 {
 	[
 		ContentType("C/C++"),

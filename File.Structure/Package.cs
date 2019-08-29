@@ -8,7 +8,7 @@ using Microsoft.VisualStudio.Shell.Interop;
 using Microsoft.VisualStudio.Threading;
 using Task = System.Threading.Tasks.Task;
 
-namespace Mate
+namespace File.Structure
 {
 	// ReSharper disable once ArrangeTypeModifiers
 	// ReSharper disable once UnusedMember.Global
@@ -71,7 +71,7 @@ namespace Mate
 							if (Document.Language != "C/C++") return;
 
 							await TaskScheduler.Default;
-							await Mate.Events.OnBeforeDocumentCloseAsync();
+							await File.Structure.Events.OnBeforeDocumentCloseAsync();
 						}, Token);
 					};
 
@@ -86,7 +86,7 @@ namespace Mate
 
 							await TaskScheduler.Default;
 							LastWindowThatGotFocus = GotFocus;
-							await Mate.Events.OnAfterWindowActivateAsync();
+							await File.Structure.Events.OnAfterWindowActivateAsync();
 						}, Token);
 					};
 

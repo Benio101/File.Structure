@@ -4,7 +4,7 @@ using System;
 using System.ComponentModel.Design;
 using Task = System.Threading.Tasks.Task;
 
-namespace Mate
+namespace File.Structure
 {
 	internal sealed class WindowCommand
 	{

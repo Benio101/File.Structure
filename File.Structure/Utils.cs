@@ -11,7 +11,7 @@ using System.Windows;
 using System.Windows.Interop;
 using System.Windows.Media.Imaging;
 
-namespace Mate
+namespace File.Structure
 {
 	internal static class Utils
 	{

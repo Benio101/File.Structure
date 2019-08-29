@@ -1,5 +1,14 @@
-image:
-- Visual Studio 2017
-
 before_build:
-- nuget restore Mate.sln
+- nuget restore File.Structure.sln
+
+version: '{build}'
+
+for:
+
+-
+  branches:
+    only:
+    - master
+  
+  image:
+  - Visual Studio 2019 Preview

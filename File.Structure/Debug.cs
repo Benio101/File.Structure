@@ -3,7 +3,7 @@ using Microsoft.VisualStudio.Shell.Interop;
 using System;
 using Task = System.Threading.Tasks.Task;
 
-namespace Mate
+namespace File.Structure
 {
 	internal static class Debug
 	{
@@ -16,18 +16,18 @@ namespace Mate
 			ThreadHelper.ThrowIfNotOnUIThread();
 			if (!(Microsoft.VisualStudio.Shell.Package.GetGlobalService(typeof(SVsOutputWindow)) is IVsOutputWindow Window)) return;
 
-			#region Mate.Debug
+			#region File.Structure.Debug
 
-				// Create `Mate.Debug` output window.
+				// Create `File.Structure.Debug` output window.
 
 				var GuID = new Guid();
-				Window.CreatePane(ref GuID, "Mate.Debug", 1, 1);
+				Window.CreatePane(ref GuID, "File.Structure.Debug", 1, 1);
 				Window.GetPane(ref GuID, out Pane);
 
 			#endregion
 		}
 
-		/// \short           Print $Message in `Mate.Debug` output window.
+		/// \short           Print $Message in `File.Structure.Debug` output window.
 		/// \param  Message  Message to print.
 
 		internal static void Print(string Message)
@@ -38,7 +38,7 @@ namespace Mate
 			Pane.Activate();
 		}
 
-		/// \short           Print $Message in `Mate.Debug` output window.
+		/// \short           Print $Message in `File.Structure.Debug` output window.
 		/// \param  Message  Message to print.
 
 		internal static async Task PrintAsync(string Message)

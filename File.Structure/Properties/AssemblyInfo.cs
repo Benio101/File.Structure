@@ -1,11 +1,11 @@
 ﻿using System.Reflection;
 using System.Runtime.InteropServices;
 
-[assembly: AssemblyTitle("Mate")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyTitle("File.Structure")]
+[assembly: AssemblyDescription("Show structure of current file.")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("Mate")]
+[assembly: AssemblyProduct("File.Structure")]
 [assembly: AssemblyCopyright("CC BY 4")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]

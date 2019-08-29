@@ -1,10 +1,11 @@
-﻿using System.Threading.Tasks;
+﻿using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.Shell.Interop;
 using Microsoft.VisualStudio.Threading;
 using Task = System.Threading.Tasks.Task;
 
-namespace Mate
+namespace File.Structure
 {
 	#region RunningDocumentTable
 
@@ -101,33 +102,50 @@ namespace Mate
 
 	internal static class Events
 	{
+		private static CancellationTokenSource CancellationTokenSource = new CancellationTokenSource();
+
 		internal static async Task OnBeforeWindowCreateAsync()
 		{
 			await TaskScheduler.Default;
-			await Window.UpdateAsync();
+			CancellationTokenSource.Cancel();
+			CancellationTokenSource.Dispose();
+			CancellationTokenSource = new CancellationTokenSource();
+			await Window.UpdateAsync(CancellationTokenSource.Token);
 		}
 
 		internal static async Task OnAfterTextViewCreateAsync()
 		{
 			await TaskScheduler.Default;
-			await Window.UpdateAsync();
+			CancellationTokenSource.Cancel();
+			CancellationTokenSource.Dispose();
+			CancellationTokenSource = new CancellationTokenSource();
+			await Window.UpdateAsync(CancellationTokenSource.Token);
 		}
 
 		internal static async Task OnAfterWindowActivateAsync()
 		{
 			await TaskScheduler.Default;
-			await Window.UpdateAsync();
+			CancellationTokenSource.Cancel();
+			CancellationTokenSource.Dispose();
+			CancellationTokenSource = new CancellationTokenSource();
+			await Window.UpdateAsync(CancellationTokenSource.Token);
 		}
 
 		internal static async Task OnBeforeDocumentCloseAsync()
 		{
-			await Window.ClearAsync();
+			CancellationTokenSource.Cancel();
+			CancellationTokenSource.Dispose();
+			CancellationTokenSource = new CancellationTokenSource();
+			await Window.ClearAsync(CancellationTokenSource.Token);
 		}
 
 		internal static async Task OnBeforeSaveAsync()
 		{
 			await TaskScheduler.Default;
-			await Window.UpdateAsync();
+			CancellationTokenSource.Cancel();
+			CancellationTokenSource.Dispose();
+			CancellationTokenSource = new CancellationTokenSource();
+			await Window.UpdateAsync(CancellationTokenSource.Token);
 			await Meta.RemoveTrailingWhitespacesAsync();
 			//await Meta.FixHeadingSpacesAsync();
 		}
@@ -136,7 +154,10 @@ namespace Mate
 		{
 			await TaskScheduler.Default;
 			var CurrentLine = await Utils.GetCurrentLineAsync();
-			await Window.ScrollToLineAsync(CurrentLine);
+			CancellationTokenSource.Cancel();
+			CancellationTokenSource.Dispose();
+			CancellationTokenSource = new CancellationTokenSource();
+			await Window.ScrollToLineAsync(CurrentLine, CancellationTokenSource.Token);
 		}
 	}
 }

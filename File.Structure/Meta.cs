@@ -2,7 +2,7 @@
 using Microsoft.VisualStudio.Shell;
 using Task = System.Threading.Tasks.Task;
 
-namespace Mate
+namespace File.Structure
 {
 	internal static class Meta
 	{

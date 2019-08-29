@@ -1,13 +1,13 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <PackageManifest Version="2.0.0" xmlns="http://schemas.microsoft.com/developer/vsx-schema/2011" xmlns:d="http://schemas.microsoft.com/developer/vsx-schema-design/2011">
     <Metadata>
-        <Identity Id="Mate" Version="0.0" Language="en-US" Publisher="Paweł Benetkiewicz" />
-        <DisplayName>Mate</DisplayName>
-        <Description xml:space="preserve">C++ programming assistant.</Description>
+        <Identity Id="File.Structure" Version="0.0" Language="en-US" Publisher="Paweł Benetkiewicz" />
+        <DisplayName>File.Structure</DisplayName>
+        <Description xml:space="preserve">Show structure of current file.</Description>
         <License>License.txt</License>
         <Icon>Logo.ico</Icon>
         <PreviewImage>Preview.png</PreviewImage>
-        <Tags>Assistant</Tags>
+        <Tags>File, Structure, Overview</Tags>
         <Preview>true</Preview>
     </Metadata>
     <Installation>

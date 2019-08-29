@@ -6,15 +6,14 @@ using System.Collections.Generic;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using Task = System.Threading.Tasks.Task;
-using System.Threading;
-using System;
 
-namespace Mate
+namespace File.Structure
 {
 	/// \short
 	/// `File structure` window.
@@ -34,10 +33,6 @@ namespace Mate
 
 		/// Content of !Scroll of `File structure` window. Contains !Entries.
 		private static readonly StackPanel Stack = new StackPanel();
-
-		/// Update ID: meta multithreading tracker.
-		/// Increasing or resetting this number prevents continuing previous, still ongoing file structure update.
-		private static volatile int UpdateID;
 
 		/// \short
 		/// List of entries from `File structure` window.
@@ -160,17 +155,17 @@ namespace Mate
 		/// Focus entry in `File structure` window by given $LineNumber.
 		private static async Task FocusEntryAsync
 		(
-			int LineNumber,
-			int UpdateID   = 0
+			int               LineNumber,
+			CancellationToken Token
 		)
 		{
-			if (Mate.Window.UpdateID != UpdateID) return;
+			if (Token.IsCancellationRequested) return;
 			await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
 
-			var Entries = Mate.Window.Entries;
+			var Entries = File.Structure.Window.Entries;
 
 			await TaskScheduler.Default;
-			if (Mate.Window.UpdateID != UpdateID) return;
+			if (Token.IsCancellationRequested) return;
 
 			foreach (var EntryPair in Entries)
 			{
@@ -178,17 +173,17 @@ namespace Mate
 				var Entry            = EntryPair.Value;
 
 				await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
-				if (Mate.Window.UpdateID != UpdateID) return;
+				if (Token.IsCancellationRequested) return;
 
 				if (!(Entry.Children[0] is TextBlock LineNumberBlock)) return;
 
 				await TaskScheduler.Default;
-				if (Mate.Window.UpdateID != UpdateID) return;
+				if (Token.IsCancellationRequested) return;
 
 				if (EntryLineNumber == LineNumber)
 				{
 					await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
-					if (Mate.Window.UpdateID != UpdateID) return;
+					if (Token.IsCancellationRequested) return;
 
 					LineNumberBlock.Foreground = new SolidColorBrush(Color.FromRgb(224, 224, 224));
 					Entry.Background = new SolidColorBrush(Color.FromRgb(24, 24, 24));
@@ -197,14 +192,14 @@ namespace Mate
 				else
 				{
 					await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
-					if (Mate.Window.UpdateID != UpdateID) return;
+					if (Token.IsCancellationRequested) return;
 
 					LineNumberBlock.Foreground = new SolidColorBrush(Color.FromRgb(128, 128, 128));
 					Entry.Background = null;
 					await TaskScheduler.Default;
 				}
 
-				if (Mate.Window.UpdateID != UpdateID) return;
+				if (Token.IsCancellationRequested) return;
 			}
 		}
 
@@ -213,30 +208,30 @@ namespace Mate
 		/// \param  LineNumber   Line number of beginning of entry (first line is 1).
 		/// \param  Value        Text Value to show in `File structure` window's entry (`""` for some types of regions).
 		/// \param  IndentLevel  Level of indentation (0 to 4) of entry (0 means no indentation, 4 means indent 4×).
-
+		
 		private static async Task AddEntryAsync
 		(
-			Region  Region,
-			int     LineNumber,
-			string  Value,
-			int     IndentLevel = 0,
-			int     UpdateID    = 0
+			Region            Region,
+			int               LineNumber,
+			string            Value,
+			CancellationToken Token,
+			int               IndentLevel
 		)
 		{
-			if (Mate.Window.UpdateID != UpdateID) return;
+			if (Token.IsCancellationRequested) return;
 
 			await TaskScheduler.Default;
-			if (Mate.Window.UpdateID != UpdateID) return;
+			if (Token.IsCancellationRequested) return;
 
 			// Clamp $IndentLevel between 0 and 4.
 			if (IndentLevel < 0) IndentLevel = 0;
 			if (IndentLevel > 4) IndentLevel = 4;
 
 			if (Entries.ContainsKey(LineNumber))
-				await RemoveEntryAsync(LineNumber, UpdateID);
+				await RemoveEntryAsync(LineNumber, Token);
 
 			await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
-			if (Mate.Window.UpdateID != UpdateID) return;
+			if (Token.IsCancellationRequested) return;
 
 			// Entry @Stack, horizontal.
 			var Stack = new StackPanel
@@ -248,7 +243,7 @@ namespace Mate
 			};
 
 			await TaskScheduler.Default;
-			if (Mate.Window.UpdateID != UpdateID) return;
+			if (Token.IsCancellationRequested) return;
 
 			// Entry click handler.
 			Stack.MouseLeftButtonDown += (sender, args) =>
@@ -276,7 +271,7 @@ namespace Mate
 					if (ActiveDocumentTextLines < LineNumber) return;
 
 					Selection.MoveToLineAndOffset(LineNumber, 1);
-					await FocusEntryAsync(LineNumber, UpdateID);
+					await FocusEntryAsync(LineNumber, Token);
 				});
 			};
 
@@ -726,7 +721,7 @@ namespace Mate
 			}
 
 			await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
-			if (Mate.Window.UpdateID != UpdateID) return;
+			if (Token.IsCancellationRequested) return;
 
 			#region Line number
 
@@ -850,76 +845,84 @@ namespace Mate
 			#endregion
 
 			await TaskScheduler.Default;
-			if (Mate.Window.UpdateID != UpdateID) return;
+			if (Token.IsCancellationRequested) return;
 
 			Entries.Add(LineNumber, Stack);
 
 			await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
-			if (Mate.Window.UpdateID != UpdateID) return;
+			if (Token.IsCancellationRequested) return;
 
-			Mate.Window.Stack.Children.Clear();
+			File.Structure.Window.Stack.Children.Clear();
 			foreach (var Entry in Entries)
 			{
-				Mate.Window.Stack.Children.Add(Entry.Value);
+				File.Structure.Window.Stack.Children.Add(Entry.Value);
 			}
 		}
 
 		/// Remove entry from `File structure` window at $LineNumber.
 		private static async Task RemoveEntryAsync
 		(
-			int LineNumber,
-			int UpdateID   = 0
+			int               LineNumber,
+			CancellationToken Token
 		)
 		{
-			if (Mate.Window.UpdateID != UpdateID) return;
+			if (Token.IsCancellationRequested) return;
 
 			await TaskScheduler.Default;
-			if (Mate.Window.UpdateID != UpdateID) return;
+			if (Token.IsCancellationRequested) return;
 
 			if (!Entries.ContainsKey(LineNumber))
 				return;
 
 			await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
-			if (Mate.Window.UpdateID != UpdateID) return;
+			if (Token.IsCancellationRequested) return;
 
 			Stack.Children.Remove(Entries[LineNumber]);
 
 			await TaskScheduler.Default;
-			if (Mate.Window.UpdateID != UpdateID) return;
+			if (Token.IsCancellationRequested) return;
 
 			Entries.Remove(LineNumber);
 		}
 
 		/// Remove all !Entries from `File structure` window.
-		private static async Task RemoveAllEntriesAsync(int UpdateID = 0)
+		private static async Task RemoveAllEntriesAsync
+		(
+			CancellationToken Token
+		)
 		{
-			if (Mate.Window.UpdateID != UpdateID) return;
+			if (Token.IsCancellationRequested) return;
 
 			await TaskScheduler.Default;
-			if (Mate.Window.UpdateID != UpdateID) return;
+			if (Token.IsCancellationRequested) return;
 
 			Entries.Clear();
 
 			await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
-			if (Mate.Window.UpdateID != UpdateID) return;
+			if (Token.IsCancellationRequested) return;
 
 			Stack.Children.Clear();
 		}
 
 		/// Remove all !Entries from `File structure` window.
-		internal static async Task ClearAsync()
+		internal static async Task ClearAsync
+		(
+			CancellationToken Token
+		)
 		{
-			UpdateID = 0;
-			await RemoveAllEntriesAsync();
+			if (Token.IsCancellationRequested) return;
+			await RemoveAllEntriesAsync(Token);
 		}
 
 		/// \short    Update content of `File structure` window.
 		/// \details  Read active document, regenerate entries and replace them with current ones.
-
-		internal static async Task UpdateAsync()
+		
+		internal static async Task UpdateAsync
+		(
+			CancellationToken Token
+		)
 		{
 			await TaskScheduler.Default;
-			var UpdateID = ++Mate.Window.UpdateID;
 
 			var Text = await Utils.GetTextAsync();
 			if (Text == null) return;
@@ -933,8 +936,8 @@ namespace Mate
 			var IndentLevel = 0;
 			var bAccessLevelIndent = -1;
 
-			if (Mate.Window.UpdateID != UpdateID) return;
-			await RemoveAllEntriesAsync(UpdateID);
+			if (Token.IsCancellationRequested) return;
+			await RemoveAllEntriesAsync(Token);
 
 			while ((Line = await Reader.ReadLineAsync()) != null)
 			{
@@ -964,20 +967,20 @@ namespace Mate
 						{
 							case "public":
 
-								if (Mate.Window.UpdateID != UpdateID) {Reader.Dispose(); return;}
-								await AddEntryAsync(Region.Public, LineNumber, "", AIndentLevel, UpdateID);
+								if (Token.IsCancellationRequested) {Reader.Dispose(); return;}
+								await AddEntryAsync(Region.Public, LineNumber, "", Token, AIndentLevel);
 								goto Match;
 
 							case "protected":
 
-								if (Mate.Window.UpdateID != UpdateID) {Reader.Dispose(); return;}
-								await AddEntryAsync(Region.Protected, LineNumber, "", AIndentLevel, UpdateID);
+								if (Token.IsCancellationRequested) {Reader.Dispose(); return;}
+								await AddEntryAsync(Region.Protected, LineNumber, "", Token, AIndentLevel);
 								goto Match;
 
 							case "private":
 
-								if (Mate.Window.UpdateID != UpdateID) {Reader.Dispose(); return;}
-								await AddEntryAsync(Region.Private, LineNumber, "", AIndentLevel, UpdateID);
+								if (Token.IsCancellationRequested) {Reader.Dispose(); return;}
+								await AddEntryAsync(Region.Private, LineNumber, "", Token, AIndentLevel);
 								goto Match;
 
 							default:
@@ -1057,65 +1060,65 @@ namespace Mate
 							Desc = "";
 						}
 
-						var CurrentRegion = Mate.Window.Region.None;
+						var CurrentRegion = File.Structure.Window.Region.None;
 
 						switch (Region)
 						{
-							case "Headers":          CurrentRegion = Mate.Window.Region.Headers;       goto Return;
-							case "Meta":             CurrentRegion = Mate.Window.Region.Meta;          goto Return;
-							case "Usings":           CurrentRegion = Mate.Window.Region.Usings;        goto Return;
-							case "Macros":           CurrentRegion = Mate.Window.Region.Macros;        goto Return;
-							case "Friends":          CurrentRegion = Mate.Window.Region.Friends;       goto Return;
-							case "Components":       CurrentRegion = Mate.Window.Region.Components;    goto Return;
-							case "Concepts":         CurrentRegion = Mate.Window.Region.Concepts;      goto Return;
-							case "Classes":          CurrentRegion = Mate.Window.Region.Classes;       goto Return;
-							case "Structs":          CurrentRegion = Mate.Window.Region.Structs;       goto Return;
-							case "Unions":           CurrentRegion = Mate.Window.Region.Unions;        goto Return;
-							case "Members":          CurrentRegion = Mate.Window.Region.Members;       goto Return;
-							case "Properties":       CurrentRegion = Mate.Window.Region.Properties;    goto Return;
-							case "Fields":           CurrentRegion = Mate.Window.Region.Fields;        goto Return;
-							case "Enums":            CurrentRegion = Mate.Window.Region.Enums;         goto Return;
-							case "Enums (unscoped)": CurrentRegion = Mate.Window.Region.EnumsUnscoped; goto Return;
-							case "Delegates":        CurrentRegion = Mate.Window.Region.Delegates;     goto Return;
-							case "Setters":          CurrentRegion = Mate.Window.Region.Setters;       goto Return;
-							case "Getters":          CurrentRegion = Mate.Window.Region.Getters;       goto Return;
-							case "Overrides":        CurrentRegion = Mate.Window.Region.Overrides;     goto Return;
-							case "Specials":         CurrentRegion = Mate.Window.Region.Specials;      goto Return;
-							case "Constructors":     CurrentRegion = Mate.Window.Region.Constructors;  goto Return;
-							case "Methods":          CurrentRegion = Mate.Window.Region.Methods;       goto Return;
-							case "Operators":        CurrentRegion = Mate.Window.Region.Operators;     goto Return;
-							case "Conversions":      CurrentRegion = Mate.Window.Region.Conversions;   goto Return;
-							case "Functions":        CurrentRegion = Mate.Window.Region.Functions;     goto Return;
-							case "Events":           CurrentRegion = Mate.Window.Region.Events;        goto Return;
+							case "Headers":          CurrentRegion = File.Structure.Window.Region.Headers;       goto Return;
+							case "Meta":             CurrentRegion = File.Structure.Window.Region.Meta;          goto Return;
+							case "Usings":           CurrentRegion = File.Structure.Window.Region.Usings;        goto Return;
+							case "Macros":           CurrentRegion = File.Structure.Window.Region.Macros;        goto Return;
+							case "Friends":          CurrentRegion = File.Structure.Window.Region.Friends;       goto Return;
+							case "Components":       CurrentRegion = File.Structure.Window.Region.Components;    goto Return;
+							case "Concepts":         CurrentRegion = File.Structure.Window.Region.Concepts;      goto Return;
+							case "Classes":          CurrentRegion = File.Structure.Window.Region.Classes;       goto Return;
+							case "Structs":          CurrentRegion = File.Structure.Window.Region.Structs;       goto Return;
+							case "Unions":           CurrentRegion = File.Structure.Window.Region.Unions;        goto Return;
+							case "Members":          CurrentRegion = File.Structure.Window.Region.Members;       goto Return;
+							case "Properties":       CurrentRegion = File.Structure.Window.Region.Properties;    goto Return;
+							case "Fields":           CurrentRegion = File.Structure.Window.Region.Fields;        goto Return;
+							case "Enums":            CurrentRegion = File.Structure.Window.Region.Enums;         goto Return;
+							case "Enums (unscoped)": CurrentRegion = File.Structure.Window.Region.EnumsUnscoped; goto Return;
+							case "Delegates":        CurrentRegion = File.Structure.Window.Region.Delegates;     goto Return;
+							case "Setters":          CurrentRegion = File.Structure.Window.Region.Setters;       goto Return;
+							case "Getters":          CurrentRegion = File.Structure.Window.Region.Getters;       goto Return;
+							case "Overrides":        CurrentRegion = File.Structure.Window.Region.Overrides;     goto Return;
+							case "Specials":         CurrentRegion = File.Structure.Window.Region.Specials;      goto Return;
+							case "Constructors":     CurrentRegion = File.Structure.Window.Region.Constructors;  goto Return;
+							case "Methods":          CurrentRegion = File.Structure.Window.Region.Methods;       goto Return;
+							case "Operators":        CurrentRegion = File.Structure.Window.Region.Operators;     goto Return;
+							case "Conversions":      CurrentRegion = File.Structure.Window.Region.Conversions;   goto Return;
+							case "Functions":        CurrentRegion = File.Structure.Window.Region.Functions;     goto Return;
+							case "Events":           CurrentRegion = File.Structure.Window.Region.Events;        goto Return;
 						}
 
 						switch (Region)
 						{
-							case "namespace":        CurrentRegion = Mate.Window.Region.Namespace;     goto Match;
-							case "using":            CurrentRegion = Mate.Window.Region.Using;         goto Match;
-							case "macro":            CurrentRegion = Mate.Window.Region.Macro;         goto Match;
-							case "friend":           CurrentRegion = Mate.Window.Region.Friend;        goto Match;
-							case "component":        CurrentRegion = Mate.Window.Region.Component;     goto Match;
-							case "concept":          CurrentRegion = Mate.Window.Region.Concept;       goto Match;
-							case "class":            CurrentRegion = Mate.Window.Region.Class;         goto Match;
-							case "struct":           CurrentRegion = Mate.Window.Region.Struct;        goto Match;
-							case "union":            CurrentRegion = Mate.Window.Region.Union;         goto Match;
-							case "member":           CurrentRegion = Mate.Window.Region.Member;        goto Match;
-							case "property":         CurrentRegion = Mate.Window.Region.Property;      goto Match;
-							case "field":            CurrentRegion = Mate.Window.Region.Field;         goto Match;
-							case "enum class":       CurrentRegion = Mate.Window.Region.Enum;          goto Match;
-							case "enum":             CurrentRegion = Mate.Window.Region.EnumUnscoped;  goto Match;
-							case "delegate":         CurrentRegion = Mate.Window.Region.Delegate;      goto Match;
-							case "setter":           CurrentRegion = Mate.Window.Region.Setter;        goto Match;
-							case "getter":           CurrentRegion = Mate.Window.Region.Getter;        goto Match;
-							case "override":         CurrentRegion = Mate.Window.Region.Override;      goto Match;
-							case "special":          CurrentRegion = Mate.Window.Region.Special;       goto Match;
-							case "constructor":      CurrentRegion = Mate.Window.Region.Constructor;   goto Match;
-							case "method":           CurrentRegion = Mate.Window.Region.Method;        goto Match;
-							case "operator":         CurrentRegion = Mate.Window.Region.Operator;      goto Match;
-							case "conversion":       CurrentRegion = Mate.Window.Region.Conversion;    goto Match;
-							case "function":         CurrentRegion = Mate.Window.Region.Function;      goto Match;
-							case "event":            CurrentRegion = Mate.Window.Region.Event;         goto Match;
+							case "namespace":        CurrentRegion = File.Structure.Window.Region.Namespace;     goto Match;
+							case "using":            CurrentRegion = File.Structure.Window.Region.Using;         goto Match;
+							case "macro":            CurrentRegion = File.Structure.Window.Region.Macro;         goto Match;
+							case "friend":           CurrentRegion = File.Structure.Window.Region.Friend;        goto Match;
+							case "component":        CurrentRegion = File.Structure.Window.Region.Component;     goto Match;
+							case "concept":          CurrentRegion = File.Structure.Window.Region.Concept;       goto Match;
+							case "class":            CurrentRegion = File.Structure.Window.Region.Class;         goto Match;
+							case "struct":           CurrentRegion = File.Structure.Window.Region.Struct;        goto Match;
+							case "union":            CurrentRegion = File.Structure.Window.Region.Union;         goto Match;
+							case "member":           CurrentRegion = File.Structure.Window.Region.Member;        goto Match;
+							case "property":         CurrentRegion = File.Structure.Window.Region.Property;      goto Match;
+							case "field":            CurrentRegion = File.Structure.Window.Region.Field;         goto Match;
+							case "enum class":       CurrentRegion = File.Structure.Window.Region.Enum;          goto Match;
+							case "enum":             CurrentRegion = File.Structure.Window.Region.EnumUnscoped;  goto Match;
+							case "delegate":         CurrentRegion = File.Structure.Window.Region.Delegate;      goto Match;
+							case "setter":           CurrentRegion = File.Structure.Window.Region.Setter;        goto Match;
+							case "getter":           CurrentRegion = File.Structure.Window.Region.Getter;        goto Match;
+							case "override":         CurrentRegion = File.Structure.Window.Region.Override;      goto Match;
+							case "special":          CurrentRegion = File.Structure.Window.Region.Special;       goto Match;
+							case "constructor":      CurrentRegion = File.Structure.Window.Region.Constructor;   goto Match;
+							case "method":           CurrentRegion = File.Structure.Window.Region.Method;        goto Match;
+							case "operator":         CurrentRegion = File.Structure.Window.Region.Operator;      goto Match;
+							case "conversion":       CurrentRegion = File.Structure.Window.Region.Conversion;    goto Match;
+							case "function":         CurrentRegion = File.Structure.Window.Region.Function;      goto Match;
+							case "event":            CurrentRegion = File.Structure.Window.Region.Event;         goto Match;
 
 							default:
 
@@ -1130,8 +1133,8 @@ namespace Mate
 
 						Return:
 
-							if (Mate.Window.UpdateID != UpdateID) {Reader.Dispose(); return;}
-							await AddEntryAsync(CurrentRegion, LineNumber, Value, IndentLevel, UpdateID);
+							if (Token.IsCancellationRequested) {Reader.Dispose(); return;}
+							await AddEntryAsync(CurrentRegion, LineNumber, Value, Token, IndentLevel);
 							++IndentLevel;
 
 						continue;
@@ -1156,32 +1159,33 @@ namespace Mate
 
 			Reader.Dispose();
 
-			if (Mate.Window.UpdateID != UpdateID) return;
+			if (Token.IsCancellationRequested) return;
 			var CurrentLine = await Utils.GetCurrentLineAsync();
 			// ReSharper disable once ArrangeStaticMemberQualifier
-			if (Mate.Window.UpdateID != UpdateID) return;
-			await ScrollToLineAsync(CurrentLine, UpdateID);
+			if (Token.IsCancellationRequested) return;
+			await ScrollToLineAsync(CurrentLine, Token);
 		}
 
 		/// - Scroll `File structure` window to $LineNumber (or the nearest entry with line number smaller than $LineNumber).
 		/// - Focus entry in `File structure` window by given $LineNumber.
+		
 		internal static async Task ScrollToLineAsync
 		(
-			int LineNumber,
-			int UpdateID   = 0
+			int               LineNumber,
+			CancellationToken Token
 		)
 		{
-			if (Mate.Window.UpdateID != UpdateID) return;
+			if (Token.IsCancellationRequested) return;
 
 			#region Scroll
 
 				await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
-				if (Mate.Window.UpdateID != UpdateID) return;
+				if (Token.IsCancellationRequested) return;
 
-				var Entries = Mate.Window.Entries;
+				var Entries = File.Structure.Window.Entries;
 
 				await TaskScheduler.Default;
-				if (Mate.Window.UpdateID != UpdateID) return;
+				if (Token.IsCancellationRequested) return;
 
 				var EntryID = 0;
 				foreach (var Entry in Entries)
@@ -1198,12 +1202,12 @@ namespace Mate
 				if (TargetEntryID < 0) TargetEntryID = 0;
 
 				await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
-				if (Mate.Window.UpdateID != UpdateID) return;
+				if (Token.IsCancellationRequested) return;
 
 				Scroll.ScrollToVerticalOffset(TargetEntryID * EntryHeight);
 
 				await TaskScheduler.Default;
-				if (Mate.Window.UpdateID != UpdateID) return;
+				if (Token.IsCancellationRequested) return;
 
 			#endregion
 			#region Focus
@@ -1214,17 +1218,17 @@ namespace Mate
 					var Entry = EntryPair.Value;
 
 					await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
-					if (Mate.Window.UpdateID != UpdateID) return;
+					if (Token.IsCancellationRequested) return;
 
 					if (!(Entry.Children[0] is TextBlock LineNumberBlock)) return;
 
 					await TaskScheduler.Default;
-					if (Mate.Window.UpdateID != UpdateID) return;
+					if (Token.IsCancellationRequested) return;
 
 					if (CurrentEntryID == EntryID)
 					{
 						await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
-						if (Mate.Window.UpdateID != UpdateID) return;
+						if (Token.IsCancellationRequested) return;
 
 						LineNumberBlock.Foreground = new SolidColorBrush(Color.FromRgb(224, 224, 224));
 						Entry.Background = new SolidColorBrush(Color.FromRgb(24, 24, 24));
@@ -1233,14 +1237,14 @@ namespace Mate
 					else
 					{
 						await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
-						if (Mate.Window.UpdateID != UpdateID) return;
+						if (Token.IsCancellationRequested) return;
 
 						LineNumberBlock.Foreground = new SolidColorBrush(Color.FromRgb(128, 128, 128));
 						Entry.Background = null;
 						await TaskScheduler.Default;
 					}
 
-					if (Mate.Window.UpdateID != UpdateID) return;
+					if (Token.IsCancellationRequested) return;
 					++CurrentEntryID;
 				}
 
