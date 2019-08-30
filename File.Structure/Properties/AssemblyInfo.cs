@@ -2,7 +2,7 @@
 using System.Runtime.InteropServices;
 
 [assembly: AssemblyTitle("File.Structure")]
-[assembly: AssemblyDescription("Show structure of current file.")]
+[assembly: AssemblyDescription("Show structure of C++ file.")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("File.Structure")]
