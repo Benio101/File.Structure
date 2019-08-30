@@ -1,18 +1,15 @@
 ﻿using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.Shell;
+using Microsoft.VisualStudio.Shell.Interop;
+using Microsoft.VisualStudio.Threading;
 using System;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.VisualStudio.Shell.Interop;
-using Microsoft.VisualStudio.Threading;
 using Task = System.Threading.Tasks.Task;
 
 namespace File.Structure
 {
-	// ReSharper disable once ArrangeTypeModifiers
-	// ReSharper disable once UnusedMember.Global
-
 	[
 		PackageRegistration
 		(
@@ -26,10 +23,11 @@ namespace File.Structure
 			PackageAutoLoadFlags.BackgroundLoad
 		),
 
-		ProvideToolWindow(typeof(Window)),
-		ProvideMenuResource("Menus.ctmenu", 1),
 		InstalledProductRegistration("#110", "#112", "1.0", IconResourceID = 400),
-		Guid("2e11dc29-f231-4423-a329-5485cdb144bd")
+		Guid("2e11dc29-f231-4423-a329-5485cdb144bd"),
+
+		ProvideMenuResource("Menus.ctmenu", 1),
+		ProvideToolWindow(typeof(Window))
 	]
 
 	internal sealed class Package
