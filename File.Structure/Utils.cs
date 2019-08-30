@@ -61,7 +61,7 @@ namespace File.Structure
 		}
 
 		/// \short Get current line (where cursor is placed) of active document.
-		/// \spare `1`.
+		/// \spare `-1`.
 
 		internal static async Task<int> GetCurrentLineAsync()
 		{
@@ -81,7 +81,11 @@ namespace File.Structure
 		/// \param  Moniker  Moniker name of icon to get.
 		/// \param  Size     Size of icon to get (render).
 
-		internal static async Task<BitmapSource> GetIconFromMonikerAsync(ImageMoniker Moniker, int Size)
+		internal static async Task<BitmapSource> GetIconFromMonikerAsync
+		(
+			ImageMoniker Moniker,
+			int          Size
+		)
 		{
 			await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
 
