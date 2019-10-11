@@ -102,50 +102,51 @@ namespace File.Structure
 
 	internal static class Events
 	{
-		private static CancellationTokenSource CancellationTokenSource = new CancellationTokenSource();
+		private static CancellationTokenSource FileStructureCancellationTokenSource = new CancellationTokenSource();
+		private static CancellationTokenSource LineFocusCancellationTokenSource     = new CancellationTokenSource();
 
 		internal static async Task OnBeforeWindowCreateAsync()
 		{
 			await TaskScheduler.Default;
-			CancellationTokenSource.Cancel();
-			CancellationTokenSource.Dispose();
-			CancellationTokenSource = new CancellationTokenSource();
-			await Window.UpdateAsync(CancellationTokenSource.Token);
+			FileStructureCancellationTokenSource.Cancel();
+			FileStructureCancellationTokenSource.Dispose();
+			FileStructureCancellationTokenSource = new CancellationTokenSource();
+			await Window.UpdateAsync(FileStructureCancellationTokenSource.Token);
 		}
 
 		internal static async Task OnAfterTextViewCreateAsync()
 		{
 			await TaskScheduler.Default;
-			CancellationTokenSource.Cancel();
-			CancellationTokenSource.Dispose();
-			CancellationTokenSource = new CancellationTokenSource();
-			await Window.UpdateAsync(CancellationTokenSource.Token);
+			FileStructureCancellationTokenSource.Cancel();
+			FileStructureCancellationTokenSource.Dispose();
+			FileStructureCancellationTokenSource = new CancellationTokenSource();
+			await Window.UpdateAsync(FileStructureCancellationTokenSource.Token);
 		}
 
 		internal static async Task OnAfterWindowActivateAsync()
 		{
 			await TaskScheduler.Default;
-			CancellationTokenSource.Cancel();
-			CancellationTokenSource.Dispose();
-			CancellationTokenSource = new CancellationTokenSource();
-			await Window.UpdateAsync(CancellationTokenSource.Token);
+			FileStructureCancellationTokenSource.Cancel();
+			FileStructureCancellationTokenSource.Dispose();
+			FileStructureCancellationTokenSource = new CancellationTokenSource();
+			await Window.UpdateAsync(FileStructureCancellationTokenSource.Token);
 		}
 
 		internal static async Task OnBeforeDocumentCloseAsync()
 		{
-			CancellationTokenSource.Cancel();
-			CancellationTokenSource.Dispose();
-			CancellationTokenSource = new CancellationTokenSource();
-			await Window.ClearAsync(CancellationTokenSource.Token);
+			FileStructureCancellationTokenSource.Cancel();
+			FileStructureCancellationTokenSource.Dispose();
+			FileStructureCancellationTokenSource = new CancellationTokenSource();
+			await Window.ClearAsync(FileStructureCancellationTokenSource.Token);
 		}
 
 		internal static async Task OnBeforeSaveAsync()
 		{
 			await TaskScheduler.Default;
-			CancellationTokenSource.Cancel();
-			CancellationTokenSource.Dispose();
-			CancellationTokenSource = new CancellationTokenSource();
-			await Window.UpdateAsync(CancellationTokenSource.Token);
+			FileStructureCancellationTokenSource.Cancel();
+			FileStructureCancellationTokenSource.Dispose();
+			FileStructureCancellationTokenSource = new CancellationTokenSource();
+			await Window.UpdateAsync(FileStructureCancellationTokenSource.Token);
 			await Meta.RemoveTrailingWhitespacesAsync();
 			//await Meta.FixHeadingSpacesAsync();
 		}
@@ -154,10 +155,10 @@ namespace File.Structure
 		{
 			await TaskScheduler.Default;
 			var CurrentLine = await Utils.GetCurrentLineAsync();
-			CancellationTokenSource.Cancel();
-			CancellationTokenSource.Dispose();
-			CancellationTokenSource = new CancellationTokenSource();
-			await Window.ScrollToLineAsync(CurrentLine, CancellationTokenSource.Token);
+			LineFocusCancellationTokenSource.Cancel();
+			LineFocusCancellationTokenSource.Dispose();
+			LineFocusCancellationTokenSource = new CancellationTokenSource();
+			await Window.ScrollToLineAsync(CurrentLine, LineFocusCancellationTokenSource.Token);
 		}
 	}
 }
