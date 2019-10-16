@@ -3,8 +3,8 @@
 
 ## Status
 | Branch | Build Status
-| ---   | ---
-| `master` | [![Build status](https://ci.appveyor.com/api/projects/status/a2snn7of72v1u887/branch/master?svg=true)](https://ci.appveyor.com/project/Benio101/file-structure/branch/master)
+| ---    | ---
+| [`master`](https://github.com/Benio101/File.Structure/tree/master) | [![Build status](https://ci.appveyor.com/api/projects/status/a2snn7of72v1u887/branch/master?svg=true)](https://ci.appveyor.com/project/Benio101/file-structure/branch/master)
 
 ## Description
 Extension adds a window with File Structure.<br>
