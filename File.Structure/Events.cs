@@ -147,8 +147,6 @@ namespace File.Structure
 			FileStructureCancellationTokenSource.Dispose();
 			FileStructureCancellationTokenSource = new CancellationTokenSource();
 			await Window.UpdateAsync(FileStructureCancellationTokenSource.Token);
-			await Meta.RemoveTrailingWhitespacesAsync();
-			//await Meta.FixHeadingSpacesAsync();
 		}
 
 		internal static async Task OnAfterCaretPositionChangeAsync()

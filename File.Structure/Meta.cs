@@ -4,39 +4,6 @@ using Task = System.Threading.Tasks.Task;
 
 namespace File.Structure
 {
-	internal static class Meta
-	{
-		/// Remove trailing whitespaces from active document.
-		internal static async Task RemoveTrailingWhitespacesAsync()
-		{
-			await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
-
-			var TextDocument = await Utils.GetTextDocumentAsync();
-			if (TextDocument == null) return;
-
-			TextDocument.ReplacePattern
-			(
-				"(?<!///( //)?)[ \t\v\f\r]+(?=(\r|\n|$))", "",
-				(int) vsFindOptions.vsFindOptionsRegularExpression
-			);
-		}
-
-		/// Replace heading spaces with tabs (each pack of heading 4 spaces are replaced to a single tab character).
-		internal static async Task FixHeadingSpacesAsync()
-		{
-			await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
-
-			var TextDocument = await Utils.GetTextDocumentAsync();
-			if (TextDocument == null) return;
-
-			while (TextDocument.ReplacePattern
-			(
-				"(?<=(^|\n)\t*)(    )", "\t",
-				(int) vsFindOptions.vsFindOptionsRegularExpression
-			));
-		}
-	}
-
 	/// Icons used by extension, as strings encoded in Base64.
 	internal static class Icons
 	{

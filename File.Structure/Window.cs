@@ -208,7 +208,7 @@ namespace File.Structure
 		/// \param  LineNumber   Line number of beginning of entry (first line is 1).
 		/// \param  Value        Text Value to show in `File structure` window's entry (`""` for some types of regions).
 		/// \param  IndentLevel  Level of indentation (0 to 4) of entry (0 means no indentation, 4 means indent 4×).
-		
+
 		private static async Task AddEntryAsync
 		(
 			Region            Region,
@@ -916,7 +916,7 @@ namespace File.Structure
 
 		/// \short    Update content of `File structure` window.
 		/// \details  Read active document, regenerate entries and replace them with current ones.
-		
+
 		internal static async Task UpdateAsync
 		(
 			CancellationToken Token
@@ -1168,7 +1168,7 @@ namespace File.Structure
 
 		/// - Scroll `File structure` window to $LineNumber (or the nearest entry with line number smaller than $LineNumber).
 		/// - Focus entry in `File structure` window by given $LineNumber.
-		
+
 		internal static async Task ScrollToLineAsync
 		(
 			int               LineNumber,
