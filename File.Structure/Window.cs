@@ -68,8 +68,8 @@ namespace File.Structure
 			Headers,
 			Meta,
 			Namespace,
-
 			Usings,
+
 			Macros,
 			Friends,
 			Components,
@@ -77,19 +77,19 @@ namespace File.Structure
 			Classes,
 			Structs,
 			Unions,
-			Members,
 			Properties,
+			Members,
 			Fields,
 			Enums,
 			EnumsUnscoped,
 			Delegates,
-
-			Setters,
-			Getters,
-			Overrides,
+			
 			Specials,
 			Constructors,
+			Overrides,
 			Methods,
+			Getters,
+			Setters,
 			Operators,
 			Conversions,
 			Functions,
@@ -103,19 +103,19 @@ namespace File.Structure
 			Class,
 			Struct,
 			Union,
-			Member,
 			Property,
+			Member,
 			Field,
 			Enum,
 			EnumUnscoped,
 			Delegate,
-
-			Setter,
-			Getter,
-			Override,
+			
 			Special,
 			Constructor,
+			Override,
 			Method,
+			Getter,
+			Setter,
 			Operator,
 			Conversion,
 			Function,
@@ -375,19 +375,19 @@ namespace File.Structure
 
 					break;
 
+				case Region.Properties:
+
+					Name = "Properties";
+					NameColor = Color.FromRgb(152, 152,  96);
+					Icon = Utils.GetIconFromBase64(Icons.SquareFullDarkYellow, Size);
+
+					break;
+
 				case Region.Members:
 
 					Name = "Members";
 					NameColor = Color.FromRgb(224, 224, 128);
 					Icon = Utils.GetIconFromBase64(Icons.SquareFullYellow, Size);
-
-					break;
-
-				case Region.Properties:
-
-					Name = "Properties";
-					NameColor = Color.FromRgb(224, 176, 128);
-					Icon = Utils.GetIconFromBase64(Icons.SquareFullOrange, Size);
 
 					break;
 
@@ -423,30 +423,6 @@ namespace File.Structure
 
 					break;
 
-				case Region.Setters:
-
-					Name = "Setters";
-					NameColor = Color.FromRgb(176, 128, 224);
-					Icon = Utils.GetIconFromBase64(Icons.CircleFullPurple, Size);
-
-					break;
-
-				case Region.Getters:
-
-					Name = "Getters";
-					NameColor = Color.FromRgb(128, 176, 224);
-					Icon = Utils.GetIconFromBase64(Icons.CircleFullBlue, Size);
-
-					break;
-
-				case Region.Overrides:
-
-					Name = "Overrides";
-					NameColor = Color.FromRgb(128, 224, 176);
-					Icon = Utils.GetIconFromBase64(Icons.CircleFullTurquoise, Size);
-
-					break;
-
 				case Region.Specials:
 
 					Name = "Specials";
@@ -463,9 +439,33 @@ namespace File.Structure
 
 					break;
 
+				case Region.Overrides:
+
+					Name = "Overrides";
+					NameColor = Color.FromRgb(152, 152,  96);
+					Icon = Utils.GetIconFromBase64(Icons.CircleFullDarkYellow, Size);
+
+					break;
+
 				case Region.Methods:
 
 					Name = "Methods";
+					NameColor = Color.FromRgb(224, 224, 128);
+					Icon = Utils.GetIconFromBase64(Icons.CircleFullYellow, Size);
+
+					break;
+
+				case Region.Getters:
+
+					Name = "Getters";
+					NameColor = Color.FromRgb(224, 224, 128);
+					Icon = Utils.GetIconFromBase64(Icons.CircleFullYellow, Size);
+
+					break;
+
+				case Region.Setters:
+
+					Name = "Setters";
 					NameColor = Color.FromRgb(224, 224, 128);
 					Icon = Utils.GetIconFromBase64(Icons.CircleFullYellow, Size);
 
@@ -567,19 +567,19 @@ namespace File.Structure
 
 					break;
 
+				case Region.Property:
+
+					Name = Value;
+					NameColor = Color.FromRgb(152, 152, 96);
+					Icon = Utils.GetIconFromBase64(Icons.SquareFullDarkYellow, Size);
+
+					break;
+
 				case Region.Member:
 
 					Name = Value;
 					NameColor = Color.FromRgb(224, 224, 128);
 					Icon = Utils.GetIconFromBase64(Icons.SquareFullYellow, Size);
-
-					break;
-
-				case Region.Property:
-
-					Name = Value;
-					NameColor = Color.FromRgb(224, 176, 128);
-					Icon = Utils.GetIconFromBase64(Icons.SquareFullOrange, Size);
 
 					break;
 
@@ -615,30 +615,6 @@ namespace File.Structure
 
 					break;
 
-				case Region.Setter:
-
-					Name = Value;
-					NameColor = Color.FromRgb(176, 128, 224);
-					Icon = Utils.GetIconFromBase64(Icons.CircleFullPurple, Size);
-
-					break;
-
-				case Region.Getter:
-
-					Name = Value;
-					NameColor = Color.FromRgb(128, 176, 224);
-					Icon = Utils.GetIconFromBase64(Icons.CircleFullBlue, Size);
-
-					break;
-
-				case Region.Override:
-
-					Name = Value;
-					NameColor = Color.FromRgb(128, 224, 176);
-					Icon = Utils.GetIconFromBase64(Icons.CircleFullTurquoise, Size);
-
-					break;
-
 				case Region.Special:
 
 					Name = Value;
@@ -655,7 +631,31 @@ namespace File.Structure
 
 					break;
 
+				case Region.Override:
+
+					Name = Value;
+					NameColor = Color.FromRgb(152, 152,  96);
+					Icon = Utils.GetIconFromBase64(Icons.CircleFullDarkYellow, Size);
+
+					break;
+
 				case Region.Method:
+
+					Name = Value;
+					NameColor = Color.FromRgb(224, 224, 128);
+					Icon = Utils.GetIconFromBase64(Icons.CircleFullYellow, Size);
+
+					break;
+
+				case Region.Getter:
+
+					Name = Value;
+					NameColor = Color.FromRgb(224, 224, 128);
+					Icon = Utils.GetIconFromBase64(Icons.CircleFullYellow, Size);
+
+					break;
+
+				case Region.Setter:
 
 					Name = Value;
 					NameColor = Color.FromRgb(224, 224, 128);
@@ -731,7 +731,7 @@ namespace File.Structure
 					Focusable     = false,
 					FontSize      = Size,
 					FontWeight    = FontWeights.Normal,
-					Foreground    = new SolidColorBrush(Color.FromRgb(96, 96, 96)),
+					Foreground    = new SolidColorBrush(Color.FromRgb(128, 128, 128)),
 					Padding       = new Thickness(0, 0, Size, 0),
 					Text          = LineNumber.ToString(),
 					TextAlignment = TextAlignment.Right,
@@ -1074,18 +1074,18 @@ namespace File.Structure
 							case "Classes":          CurrentRegion = File.Structure.Window.Region.Classes;       goto Return;
 							case "Structs":          CurrentRegion = File.Structure.Window.Region.Structs;       goto Return;
 							case "Unions":           CurrentRegion = File.Structure.Window.Region.Unions;        goto Return;
-							case "Members":          CurrentRegion = File.Structure.Window.Region.Members;       goto Return;
 							case "Properties":       CurrentRegion = File.Structure.Window.Region.Properties;    goto Return;
+							case "Members":          CurrentRegion = File.Structure.Window.Region.Members;       goto Return;
 							case "Fields":           CurrentRegion = File.Structure.Window.Region.Fields;        goto Return;
 							case "Enums":            CurrentRegion = File.Structure.Window.Region.Enums;         goto Return;
 							case "Enums (unscoped)": CurrentRegion = File.Structure.Window.Region.EnumsUnscoped; goto Return;
 							case "Delegates":        CurrentRegion = File.Structure.Window.Region.Delegates;     goto Return;
-							case "Setters":          CurrentRegion = File.Structure.Window.Region.Setters;       goto Return;
-							case "Getters":          CurrentRegion = File.Structure.Window.Region.Getters;       goto Return;
-							case "Overrides":        CurrentRegion = File.Structure.Window.Region.Overrides;     goto Return;
 							case "Specials":         CurrentRegion = File.Structure.Window.Region.Specials;      goto Return;
 							case "Constructors":     CurrentRegion = File.Structure.Window.Region.Constructors;  goto Return;
+							case "Overrides":        CurrentRegion = File.Structure.Window.Region.Overrides;     goto Return;
 							case "Methods":          CurrentRegion = File.Structure.Window.Region.Methods;       goto Return;
+							case "Getters":          CurrentRegion = File.Structure.Window.Region.Getters;       goto Return;
+							case "Setters":          CurrentRegion = File.Structure.Window.Region.Setters;       goto Return;
 							case "Operators":        CurrentRegion = File.Structure.Window.Region.Operators;     goto Return;
 							case "Conversions":      CurrentRegion = File.Structure.Window.Region.Conversions;   goto Return;
 							case "Functions":        CurrentRegion = File.Structure.Window.Region.Functions;     goto Return;
@@ -1103,18 +1103,18 @@ namespace File.Structure
 							case "class":            CurrentRegion = File.Structure.Window.Region.Class;         goto Match;
 							case "struct":           CurrentRegion = File.Structure.Window.Region.Struct;        goto Match;
 							case "union":            CurrentRegion = File.Structure.Window.Region.Union;         goto Match;
-							case "member":           CurrentRegion = File.Structure.Window.Region.Member;        goto Match;
 							case "property":         CurrentRegion = File.Structure.Window.Region.Property;      goto Match;
+							case "member":           CurrentRegion = File.Structure.Window.Region.Member;        goto Match;
 							case "field":            CurrentRegion = File.Structure.Window.Region.Field;         goto Match;
 							case "enum class":       CurrentRegion = File.Structure.Window.Region.Enum;          goto Match;
 							case "enum":             CurrentRegion = File.Structure.Window.Region.EnumUnscoped;  goto Match;
 							case "delegate":         CurrentRegion = File.Structure.Window.Region.Delegate;      goto Match;
-							case "setter":           CurrentRegion = File.Structure.Window.Region.Setter;        goto Match;
-							case "getter":           CurrentRegion = File.Structure.Window.Region.Getter;        goto Match;
-							case "override":         CurrentRegion = File.Structure.Window.Region.Override;      goto Match;
 							case "special":          CurrentRegion = File.Structure.Window.Region.Special;       goto Match;
 							case "constructor":      CurrentRegion = File.Structure.Window.Region.Constructor;   goto Match;
+							case "override":         CurrentRegion = File.Structure.Window.Region.Override;      goto Match;
 							case "method":           CurrentRegion = File.Structure.Window.Region.Method;        goto Match;
+							case "getter":           CurrentRegion = File.Structure.Window.Region.Getter;        goto Match;
+							case "setter":           CurrentRegion = File.Structure.Window.Region.Setter;        goto Match;
 							case "operator":         CurrentRegion = File.Structure.Window.Region.Operator;      goto Match;
 							case "conversion":       CurrentRegion = File.Structure.Window.Region.Conversion;    goto Match;
 							case "function":         CurrentRegion = File.Structure.Window.Region.Function;      goto Match;
