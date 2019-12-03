@@ -1134,7 +1134,13 @@ namespace File.Structure
 						Return:
 
 							if (Token.IsCancellationRequested) {Reader.Dispose(); return;}
-							await AddEntryAsync(CurrentRegion, LineNumber, Value, Token, IndentLevel);
+
+							// \todo Add setting: boolean option here: if enable/disable generic, nonsection region entries in file structure window.
+							if (CurrentRegion != File.Structure.Window.Region.None)
+							{
+								await AddEntryAsync(CurrentRegion, LineNumber, Value, Token, IndentLevel);
+							}
+
 							++IndentLevel;
 
 						continue;
