@@ -423,6 +423,8 @@ namespace File.Structure
 
 					break;
 
+
+
 				case Region.Specials:
 
 					Name = "Specials";
@@ -442,7 +444,7 @@ namespace File.Structure
 				case Region.Overrides:
 
 					Name = "Overrides";
-					NameColor = Color.FromRgb(152, 152,  96);
+					NameColor = Color.FromRgb(152, 152, 96);
 					Icon = Utils.GetIconFromBase64(Icons.CircleFullDarkYellow, Size);
 
 					break;
@@ -502,6 +504,8 @@ namespace File.Structure
 					Icon = Utils.GetIconFromBase64(Icons.CircleFullPink, Size);
 
 					break;
+
+
 
 				case Region.Using:
 
@@ -615,6 +619,8 @@ namespace File.Structure
 
 					break;
 
+
+
 				case Region.Special:
 
 					Name = Value;
@@ -634,7 +640,7 @@ namespace File.Structure
 				case Region.Override:
 
 					Name = Value;
-					NameColor = Color.FromRgb(152, 152,  96);
+					NameColor = Color.FromRgb(152, 152, 96);
 					Icon = Utils.GetIconFromBase64(Icons.CircleFullDarkYellow, Size);
 
 					break;
@@ -694,6 +700,8 @@ namespace File.Structure
 					Icon = Utils.GetIconFromBase64(Icons.CircleFullPink, Size);
 
 					break;
+
+
 
 				case Region.Public:
 
@@ -1080,6 +1088,7 @@ namespace File.Structure
 							case "Enums":            CurrentRegion = File.Structure.Window.Region.Enums;         goto Return;
 							case "Enums (unscoped)": CurrentRegion = File.Structure.Window.Region.EnumsUnscoped; goto Return;
 							case "Delegates":        CurrentRegion = File.Structure.Window.Region.Delegates;     goto Return;
+
 							case "Specials":         CurrentRegion = File.Structure.Window.Region.Specials;      goto Return;
 							case "Constructors":     CurrentRegion = File.Structure.Window.Region.Constructors;  goto Return;
 							case "Overrides":        CurrentRegion = File.Structure.Window.Region.Overrides;     goto Return;
@@ -1109,6 +1118,7 @@ namespace File.Structure
 							case "enum class":       CurrentRegion = File.Structure.Window.Region.Enum;          goto Match;
 							case "enum":             CurrentRegion = File.Structure.Window.Region.EnumUnscoped;  goto Match;
 							case "delegate":         CurrentRegion = File.Structure.Window.Region.Delegate;      goto Match;
+
 							case "special":          CurrentRegion = File.Structure.Window.Region.Special;       goto Match;
 							case "constructor":      CurrentRegion = File.Structure.Window.Region.Constructor;   goto Match;
 							case "override":         CurrentRegion = File.Structure.Window.Region.Override;      goto Match;
