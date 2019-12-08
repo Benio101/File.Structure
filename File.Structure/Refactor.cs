@@ -20,14 +20,6 @@ namespace File.Structure
 	{
 		private ITextView TextView;
 		private bool IsTextChanging;
-		private static IClassifier Classifier;
-
-		#pragma warning disable 649
-
-		[Import]
-		private readonly IClassifierAggregatorService ClassifierAggregatorService;
-
-		#pragma warning restore 649
 
 		public void TextViewCreated(ITextView TextView)
 		{
@@ -36,7 +28,6 @@ namespace File.Structure
 			TextView.TextBuffer.Changed     += OnTextBufferChanged;
 			TextView.TextBuffer.PostChanged += PostTextBufferChanged;
 
-			Classifier = ClassifierAggregatorService.GetClassifier(this.TextView.TextBuffer);
 			this.TextView.Caret.PositionChanged += OnCaretPositionChanged;
 
 			_ = Events.OnAfterTextViewCreateAsync();
