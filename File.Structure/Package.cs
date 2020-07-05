@@ -80,6 +80,8 @@ namespace File.Structure
 						_ = Task.Run(async () =>
 						{
 							await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+
+							if (GotFocus.Document == null) return;
 							if (GotFocus.Document.Language != "C/C++") return;
 
 							await TaskScheduler.Default;

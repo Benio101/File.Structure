@@ -29,7 +29,6 @@ namespace File.Structure
 		{
 			await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync(Package.DisposalToken);
 			var CommandService = await Package.GetServiceAsync((typeof(IMenuCommandService))) as OleMenuCommandService;
-			// ReSharper disable once AssignmentIsFullyDiscarded
 			_ = new WindowCommand(Package, CommandService);
 		}
 
